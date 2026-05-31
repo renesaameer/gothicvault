@@ -87,6 +87,7 @@ export interface Testimonial {
   review: string;
   rating: number;
   image_url: string | null;
+  main_image_url?: string | null;
   sort_order: number;
 }
 
