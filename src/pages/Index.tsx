@@ -431,6 +431,49 @@ const Index = () => {
             </section>
           )}
 
+          {hasLoadedHomepageData && isEnabled("featured_image") && getContent("featured_image").image && (
+            <section className="py-8 sm:py-10 lg:py-14 section-padding contain-content">
+              <FadeSection>
+                <DeepTilt intensity={8}>
+                  <div className="relative aspect-[16/7] sm:aspect-[16/6] lg:aspect-[16/5] rounded-2xl overflow-hidden shadow-lg" style={{ transformStyle: "preserve-3d" }}>
+                    <img
+                      src={getContent("featured_image").image}
+                      alt={getContent("featured_image").section_title || "Featured"}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                    {(getContent("featured_image").overlay ?? true) && (
+                      <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-foreground/20 to-transparent" />
+                    )}
+                    {(getContent("featured_image").section_title || getContent("featured_image").subtitle || getContent("featured_image").button_link) && (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6" style={{ transform: "translateZ(40px)" }}>
+                        {getContent("featured_image").section_title && (
+                          <h2 className="text-xl sm:text-2xl lg:text-4xl font-semibold tracking-tight text-white drop-shadow-sm">
+                            {getContent("featured_image").section_title}
+                          </h2>
+                        )}
+                        {getContent("featured_image").subtitle && (
+                          <p className="text-xs sm:text-sm lg:text-base text-white/85 mt-2 max-w-xl">
+                            {getContent("featured_image").subtitle}
+                          </p>
+                        )}
+                        {getContent("featured_image").button_link && getContent("featured_image").button_text && (
+                          <Link
+                            to={getContent("featured_image").button_link}
+                            className="mt-5 inline-flex items-center gap-2 bg-white text-foreground px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-white/90 active:scale-[0.97] transition-all shadow-md"
+                          >
+                            {getContent("featured_image").button_text} <ArrowRightIcon size={14} />
+                          </Link>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </DeepTilt>
+              </FadeSection>
+            </section>
+          )}
+
           {hasLoadedHomepageData && isEnabled("why_choose_us") && whyCards.length > 0 && (
             <section className="py-8 sm:py-10 lg:py-14 section-padding section-alt contain-content">
               <FadeSection className="text-center mb-6 sm:mb-8">
