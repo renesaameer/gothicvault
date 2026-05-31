@@ -18,6 +18,7 @@ import { useFadeIn, useStaggerIn } from "@/hooks/useMotion";
 import { subscribeToNewsletter } from "@/lib/newsletter";
 import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 import { attachImagesToProducts } from "@/lib/productMedia";
+import { TestimonialsColumn } from "@/components/ui/testimonials-columns-1";
 
 const LazyAccordion = lazy(() => import("@/components/ui/accordion").then(mod => ({
   default: forwardRef<HTMLDivElement, { faqs: HomeFaq[] }>(({ faqs }, ref) => (
@@ -426,19 +427,17 @@ const Index = () => {
                 {sectionContent("testimonials").subtitle && <p className="text-sm text-muted-foreground mt-2">{sectionContent("testimonials").subtitle}</p>}
                 <div className="premium-divider max-w-[60px] mx-auto mt-4" />
               </FadeSection>
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
-                {testimonials.map((t) => (
-                  <div key={t.id} className="glass-card rounded-2xl p-4 sm:p-5 hover:-translate-y-0.5 transition-transform duration-300">
-                    <StarRating rating={t.rating} size={13} />
-                    <p className="text-[13px] text-foreground/80 mt-3 mb-4 leading-relaxed italic">"{t.review}"</p>
-                    <div className="premium-divider mb-3" />
-                    <div className="flex items-center gap-3">
-                      {t.image_url && <img src={t.image_url} alt={t.name} className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover ring-2 ring-primary/20" loading="lazy" decoding="async" width={36} height={36} />}
-                      <span className="text-[13px] font-medium text-foreground">{t.name}</span>
-                    </div>
+              {(() => {
+                const items = testimonials.map(t => ({ text: t.review, image: t.image_url ?? undefined, name: t.name, role: (t as any).role ?? undefined }));
+                const cols = [items, items.slice().reverse(), items.slice(Math.floor(items.length / 2)).concat(items.slice(0, Math.floor(items.length / 2)))];
+                return (
+                  <div className="flex justify-center gap-5 sm:gap-6 mt-6 [mask-image:linear-gradient(to_bottom,transparent,black_15%,black_85%,transparent)] max-h-[640px] overflow-hidden">
+                    <TestimonialsColumn testimonials={cols[0]} duration={18} />
+                    <TestimonialsColumn testimonials={cols[1]} duration={24} className="hidden md:block" />
+                    <TestimonialsColumn testimonials={cols[2]} duration={20} className="hidden lg:block" />
                   </div>
-                ))}
-              </div>
+                );
+              })()}
             </section>
           )}
 
