@@ -1,0 +1,21 @@
+{
+  "extensions": ["pgcrypto"],
+  "enums": ["app_role"],
+  "tables": [
+    "about_sections","announcement_bar","brands","categories","contact_settings",
+    "contact_submissions","coupons","customers","delivery_partners","delivery_zones",
+    "design_settings","direct_order_channels","featured_categories","floating_icons",
+    "floating_icons_settings","footer_settings","hero_slides","home_faqs",
+    "homepage_sections","invoice_settings","newsletter_subscribers","offers","orders",
+    "policies","product_faqs","product_offers","product_tabs","product_variants",
+    "products","profiles","reviews","shop_settings","testimonials","tracking_pixels",
+    "user_roles","whatsapp_settings","why_choose_us_cards","incomplete_orders"
+  ],
+  "functions": [
+    "update_updated_at_column","has_role","is_admin_or_staff","handle_new_user",
+    "subscribe_newsletter","decrement_product_stock","increment_coupon_usage",
+    "upsert_checkout_customer","get_public_tracking_pixels","track_order",
+    "track_orders_by_phone","upsert_incomplete_order","mark_incomplete_order_recovered"
+  ],
+  "storage_buckets": ["media"]
+}

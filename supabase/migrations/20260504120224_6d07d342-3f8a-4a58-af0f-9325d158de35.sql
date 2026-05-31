@@ -1,0 +1,1 @@
+ALTER TABLE public.shop_settings ADD COLUMN IF NOT EXISTS pdp_show_shipment_details boolean NOT NULL DEFAULT true;

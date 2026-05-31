@@ -1,0 +1,1 @@
+ALTER TABLE product_tabs ADD COLUMN IF NOT EXISTS content_type text NOT NULL DEFAULT 'text';

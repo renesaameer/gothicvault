@@ -1,0 +1,2 @@
+UPDATE featured_categories SET category_id = '11111111-1111-1111-1111-111111111102' WHERE title = 'Cardholders';
+UPDATE featured_categories SET category_id = '11111111-1111-1111-1111-111111111103' WHERE title = 'Belts';

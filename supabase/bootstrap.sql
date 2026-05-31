@@ -1,0 +1,7 @@
+-- ============================================================================
+-- DEPRECATED — see /database/full_setup.sql
+-- ----------------------------------------------------------------------------
+-- The complete, modular installer now lives in the /database folder. Run
+-- /database/full_setup.sql in the Supabase SQL Editor on a fresh project.
+-- This file is kept only so existing links/docs don't 404.
+-- ============================================================================

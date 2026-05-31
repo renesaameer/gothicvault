@@ -1,0 +1,17 @@
+# AEROM
+
+> Premium modest fashion in Bangladesh — abayas, khimars, modest sets, and accessories. Cash on delivery nationwide.
+
+## Pages
+
+- [Home](/): Featured collections, hero stories, and brand highlights.
+- [Shop](/shop): Browse the full catalog of modest fashion products.
+- [About](/about): Brand story, craft, and founders behind AEROM
+- [Contact](/contact): Get in touch via email, phone, or WhatsApp.
+- [Track Order](/track-order): Track an order by order number or phone.
+- [Policies](/policies): Shipping, returns, privacy, and terms.
+
+## Optional
+
+- [Cart](/cart): Current shopping cart.
+- [Checkout](/checkout): Place an order.

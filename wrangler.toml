@@ -1,0 +1,14 @@
+name = "step-and-style"
+compatibility_date = "2025-04-01"
+main = "worker/index.ts"
+workers_dev = true
+
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+
+[vars]
+VITE_SUPABASE_URL = "https://edvqzdcflsjohtaqhlrc.supabase.co"
+VITE_SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkdnF6ZGNmbHNqb2h0YXFobHJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5ODcxNDgsImV4cCI6MjA5NDU2MzE0OH0.Jy5PC0Ulw0T0nzAWs-pp3X-88_Pu8R6ja6VLIZUdRdI"
+VITE_SUPABASE_PROJECT_ID = "edvqzdcflsjohtaqhlrc"
