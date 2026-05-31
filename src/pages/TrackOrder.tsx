@@ -8,6 +8,7 @@ import { CURRENCY_SYMBOL, toBanglaDigits } from "@/lib/currency";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDelayedLoading } from "@/hooks/useDelayedLoading";
 import { useDocumentMeta } from "@/hooks/useDocumentMeta";
+import { GlobePulse } from "@/components/ui/cobe-globe-pulse";
 
 const statusSteps = ["pending", "confirmed", "processing", "shipped", "delivered"];
 const statusLabels: Record<string, string> = { pending: "Pending", confirmed: "Confirmed", processing: "Processing", shipped: "Shipped", delivered: "Delivered" };
