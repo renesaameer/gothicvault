@@ -440,13 +440,15 @@ const Index = () => {
               </FadeSection>
               <div ref={whyGrid.ref} className={`grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 ${whyGrid.className}`}>
                 {whyCards.map((card, idx) => (
-                  <div key={card.id} className="text-center p-4 sm:p-6 glass-card rounded-2xl hover:-translate-y-0.5 transition-transform duration-300">
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3 sm:mb-4 animate-float" style={{ animationDelay: `${idx * 0.5}s` }}>
+                  <DeepTilt key={card.id} intensity={14}>
+                  <div className="text-center p-4 sm:p-6 glass-card rounded-2xl hover:-translate-y-0.5 transition-transform duration-300 h-full" style={{ transformStyle: "preserve-3d" }}>
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3 sm:mb-4 animate-float" style={{ animationDelay: `${idx * 0.5}s`, transform: "translateZ(40px)" }}>
                       <DynamicIcon name={card.icon_name || "Shield"} className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                     </div>
-                    <h3 className="text-sm font-semibold text-foreground mb-1.5">{card.title}</h3>
+                    <h3 className="text-sm font-semibold text-foreground mb-1.5" style={{ transform: "translateZ(28px)" }}>{card.title}</h3>
                     <p className="text-xs sm:text-[13px] text-muted-foreground leading-relaxed">{card.description}</p>
                   </div>
+                  </DeepTilt>
                 ))}
               </div>
             </section>
