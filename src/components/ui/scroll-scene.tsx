@@ -117,7 +117,7 @@ export const ParallaxImage: React.FC<ParallaxImageProps> = ({ speed = 0.3, scale
     </div>
   );
 };
-ParallaxImage.displayName = "ParallaxImage";
+
 
 /**
  * Cinematic section that pins-ish and reveals on scroll.
