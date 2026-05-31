@@ -274,7 +274,7 @@ const TrackOrder = () => {
               {/* Unified order card */}
               <div className="glass-card rounded-[28px] overflow-hidden">
                 {/* Hero: status + order */}
-                <div className="relative p-6 sm:p-8 border-b border-border/30">
+                <div className="relative p-5 sm:p-8 border-b border-border/30">
                   <div
                     aria-hidden
                     className="pointer-events-none absolute inset-0 opacity-60"
@@ -283,18 +283,18 @@ const TrackOrder = () => {
                         "radial-gradient(ellipse at 20% 0%, hsl(var(--primary) / 0.18), transparent 60%), radial-gradient(ellipse at 100% 100%, hsl(var(--primary) / 0.10), transparent 55%)",
                     }}
                   />
-                  <div className="relative flex items-start justify-between gap-4 mb-6">
-                    <div>
-                      <p className="text-[10px] uppercase tracking-[0.42em] text-muted-foreground font-display mb-2">Order</p>
-                      <p className="text-lg sm:text-xl font-semibold tracking-tight text-foreground">#{order.order_number}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{toBanglaDigits(new Date(order.created_at).toLocaleDateString("bn-BD"))}</p>
+                  <div className="relative flex items-start justify-between gap-3 mb-6">
+                    <div className="min-w-0">
+                      <p className="text-[10px] uppercase tracking-[0.32em] sm:tracking-[0.42em] text-muted-foreground font-display mb-2">Order</p>
+                      <p className="text-base sm:text-xl font-semibold tracking-tight text-foreground truncate">#{order.order_number}</p>
+                      <p className="text-[11px] sm:text-xs text-muted-foreground mt-1">{toBanglaDigits(new Date(order.created_at).toLocaleDateString("bn-BD"))}</p>
                     </div>
-                    <div className="text-right">
-                      <p className="text-[10px] uppercase tracking-[0.42em] text-muted-foreground font-display mb-2">Total</p>
-                      <p className="text-xl sm:text-2xl font-semibold tracking-tight tabular-nums text-foreground">
+                    <div className="text-right shrink-0">
+                      <p className="text-[10px] uppercase tracking-[0.32em] sm:tracking-[0.42em] text-muted-foreground font-display mb-2">Total</p>
+                      <p className="text-lg sm:text-2xl font-semibold tracking-tight tabular-nums text-foreground whitespace-nowrap">
                         {CURRENCY_SYMBOL}{toBanglaDigits(Number(order.total).toFixed(0))}
                       </p>
-                      <span className="inline-flex items-center gap-1.5 mt-1.5 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20 text-[10px] uppercase tracking-[0.22em] text-primary font-medium">
+                      <span className="inline-flex items-center gap-1.5 mt-1.5 px-2 sm:px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20 text-[9px] sm:text-[10px] uppercase tracking-[0.18em] sm:tracking-[0.22em] text-primary font-medium whitespace-nowrap">
                         <span className="relative flex h-1.5 w-1.5">
                           <span className="absolute inset-0 rounded-full bg-primary/70 animate-ping" />
                           <span className="relative rounded-full h-1.5 w-1.5 bg-primary" />
@@ -306,45 +306,49 @@ const TrackOrder = () => {
 
                   {/* Status stepper */}
                   <div className="relative">
-                    <div className="absolute top-[18px] left-[18px] right-[18px] h-px bg-border/40" />
+                    <div className="absolute top-4 sm:top-[18px] left-4 sm:left-[18px] right-4 sm:right-[18px] h-px bg-border/40" />
                     <div
-                      className="absolute top-[18px] left-[18px] h-px bg-gradient-to-r from-primary/80 to-primary transition-all duration-700"
-                      style={{ width: currentStep > 0 ? `calc(${(currentStep / (statusSteps.length - 1)) * 100}% - ${(currentStep / (statusSteps.length - 1)) * 36}px)` : "0px" }}
+                      className="absolute top-4 sm:top-[18px] left-4 sm:left-[18px] h-px bg-gradient-to-r from-primary/80 to-primary transition-all duration-700"
+                      style={{ width: currentStep > 0 ? `calc(${(currentStep / (statusSteps.length - 1)) * 100}% - ${(currentStep / (statusSteps.length - 1)) * 32}px)` : "0px" }}
                     />
-                    <div className="relative flex items-center justify-between">
+                    <div className="relative flex items-start justify-between">
                       {statusSteps.map((step, i) => {
                         const Icon = statusIcons[step];
                         const active = i <= currentStep;
                         return (
-                          <div key={step} className="flex flex-col items-center gap-2">
-                            <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-500 ${
+                          <div key={step} className="flex flex-col items-center gap-2 min-w-0">
+                            <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all duration-500 ${
                               active
                                 ? "bg-gradient-to-b from-primary/90 to-primary text-primary-foreground shadow-[0_6px_20px_-6px_hsl(var(--primary)/0.6)]"
                                 : "bg-background/40 border border-border/40 text-muted-foreground/60"
                             }`}>
-                              <Icon size={14} />
+                              <Icon size={13} />
                             </div>
-                            <span className={`text-[9px] uppercase tracking-[0.22em] ${active ? "text-foreground" : "text-muted-foreground/60"}`}>
+                            <span className={`hidden sm:inline text-[9px] uppercase tracking-[0.22em] ${active ? "text-foreground" : "text-muted-foreground/60"}`}>
                               {statusLabels[step]}
                             </span>
                           </div>
                         );
                       })}
                     </div>
+                    {/* Mobile active label */}
+                    <p className="sm:hidden mt-3 text-center text-[10px] uppercase tracking-[0.32em] text-foreground">
+                      {statusLabels[order.order_status] || order.order_status}
+                    </p>
                   </div>
                 </div>
 
                 {/* Items */}
-                <div className="p-6 sm:p-8 border-b border-border/30">
+                <div className="p-5 sm:p-8 border-b border-border/30">
                   <h3 className="text-[10px] uppercase tracking-[0.42em] text-muted-foreground font-display mb-4">Artifacts</h3>
                   <div className="divide-y divide-border/30">
                     {(order.items || []).map((item: any, i: number) => (
-                      <div key={i} className="flex justify-between items-center py-3 text-sm first:pt-0 last:pb-0">
-                        <span className="text-foreground tracking-wide">
+                      <div key={i} className="flex justify-between items-center gap-3 py-3 text-sm first:pt-0 last:pb-0">
+                        <span className="text-foreground tracking-wide min-w-0 break-words">
                           {item.name}
                           <span className="text-muted-foreground"> · ×{toBanglaDigits(item.quantity || 1)}</span>
                         </span>
-                        <span className="text-foreground font-medium tabular-nums">
+                        <span className="text-foreground font-medium tabular-nums whitespace-nowrap shrink-0">
                           {CURRENCY_SYMBOL}{toBanglaDigits(Number(item.price * (item.quantity || 1)).toFixed(0))}
                         </span>
                       </div>
@@ -352,8 +356,9 @@ const TrackOrder = () => {
                   </div>
                 </div>
 
+
                 {/* Ledger + Manifest combined */}
-                <div className="p-6 sm:p-8 grid sm:grid-cols-2 gap-x-8 gap-y-2">
+                <div className="p-5 sm:p-8 grid sm:grid-cols-2 gap-x-8 gap-y-2">
                   <div className="space-y-2.5">
                     <h3 className="text-[10px] uppercase tracking-[0.42em] text-muted-foreground font-display mb-2">Ledger</h3>
                     <Row label="Subtotal" value={`${CURRENCY_SYMBOL}${toBanglaDigits(Number(order.subtotal).toFixed(0))}`} />
