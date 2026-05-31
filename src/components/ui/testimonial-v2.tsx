@@ -19,11 +19,11 @@ const TestimonialsColumn = ({ className = "", testimonials, duration = 20 }: Col
   return (
     <div className={`flex-1 min-w-0 max-w-xs ${className}`}>
       <motion.div
-        animate={{ y: ["0%", "-50%"] }}
+        animate={{ y: ["0%", "-33.3333%"] }}
         transition={{ duration, repeat: Infinity, ease: "linear" }}
         className="flex flex-col gap-5"
       >
-        {[0, 1].map((dup) => (
+        {[0, 1, 2].map((dup) => (
           <div key={dup} className="flex flex-col gap-5" aria-hidden={dup === 1}>
             {testimonials.map(({ text, image, name, role }, i) => (
               <div
