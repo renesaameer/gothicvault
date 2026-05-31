@@ -13,6 +13,7 @@ import type { Product, Category } from "@/types/database";
 import { ShopPageSkeleton } from "@/components/ui/page-skeletons";
 import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 import { attachImagesToProducts } from "@/lib/productMedia";
+import { ScrollScene } from "@/components/ui/scroll-scene";
 
 async function fetchShopData() {
   const [prodRes, catRes, setRes, offers] = await Promise.all([
