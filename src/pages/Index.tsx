@@ -15,7 +15,7 @@ import type { Product, HomepageSection, Testimonial, HomeFaq, WhyChooseUsCard } 
 const VideoReels = lazy(() => import("@/components/homepage/VideoReels"));
 import { useToast } from "@/hooks/use-toast";
 import { useFadeIn, useStaggerIn } from "@/hooks/useMotion";
-import { ScrollScene } from "@/components/ui/scroll-scene";
+import { ScrollScene, DeepTilt } from "@/components/ui/scroll-scene";
 import { subscribeToNewsletter } from "@/lib/newsletter";
 import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 import { attachImagesToProducts } from "@/lib/productMedia";
@@ -293,21 +293,23 @@ const Index = () => {
               <FadeSection>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {activeOffers.map((offer) => (
-                    <Link key={offer.id} to="/shop" className="group relative overflow-hidden glass-card rounded-xl p-4 sm:p-5 hover:border-primary/30 transition-all duration-300 hover:-translate-y-0.5 trust-badge">
-                      <div className="flex items-center gap-2.5 mb-2">
+                    <DeepTilt key={offer.id} intensity={12}>
+                    <Link to="/shop" className="group relative overflow-hidden glass-card rounded-xl p-4 sm:p-5 hover:border-primary/30 transition-all duration-300 hover:-translate-y-0.5 trust-badge block h-full" style={{ transformStyle: "preserve-3d" }}>
+                      <div className="flex items-center gap-2.5 mb-2" style={{ transform: "translateZ(30px)" }}>
                         <span className="inline-flex items-center gap-1 bg-foreground text-background text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm">
                           <GiftIcon size={11} />
                           {toBanglaDigits(offer.discount_value)}{offer.discount_type === "percentage" ? "%" : ` ${CURRENCY_SYMBOL}`} off
                         </span>
                       </div>
-                      <h3 className="text-base font-semibold text-foreground">{offer.name}</h3>
+                      <h3 className="text-base font-semibold text-foreground" style={{ transform: "translateZ(24px)" }}>{offer.name}</h3>
                       <p className="text-xs text-muted-foreground mt-1">
                         {offer.apply_to === "entire_store" ? "On all products" : `On selected products`}
                       </p>
-                      <span className="inline-flex items-center gap-1 text-xs font-medium text-primary mt-3 group-hover:gap-2 transition-all">
+                      <span className="inline-flex items-center gap-1 text-xs font-medium text-primary mt-3 group-hover:gap-2 transition-all" style={{ transform: "translateZ(20px)" }}>
                         Shop now <ArrowRightIcon size={12} />
                       </span>
                     </Link>
+                    </DeepTilt>
                   ))}
                 </div>
               </FadeSection>
@@ -359,17 +361,19 @@ const Index = () => {
               </FadeSection>
               <div ref={catGrid.ref} className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5 ${catGrid.className}`}>
                 {showcaseCategories.map((cat) => (
-                  <Link key={cat.id} to={`/shop?category=${encodeURIComponent(cat.name)}`} className="group relative aspect-[4/3] rounded-2xl overflow-hidden bg-secondary shadow-sm">
+                  <DeepTilt key={cat.id} intensity={12}>
+                  <Link to={`/shop?category=${encodeURIComponent(cat.name)}`} className="group relative block aspect-[4/3] rounded-2xl overflow-hidden bg-secondary shadow-sm" style={{ transformStyle: "preserve-3d" }}>
                     {cat.image_url ? (
                       <img src={cat.image_url} alt={cat.name} className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" loading="lazy" decoding="async" width={400} height={300} />
                     ) : (
                       <div className="w-full h-full bg-gradient-to-br from-foreground/5 to-foreground/10" />
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/15 to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <div className="absolute bottom-0 left-0 right-0 p-4" style={{ transform: "translateZ(36px)" }}>
                       <h3 className="text-sm sm:text-base font-semibold text-white drop-shadow-sm">{cat.name}</h3>
                     </div>
                   </Link>
+                  </DeepTilt>
                 ))}
               </div>
             </section>
@@ -384,16 +388,18 @@ const Index = () => {
               </FadeSection>
               <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
                 {brands.map((brand) => (
-                  <Link key={brand.id} to={`/shop?brand=${encodeURIComponent(brand.name)}`} className="group flex flex-col items-center justify-center glass-card rounded-xl aspect-square hover:border-primary/25 hover:-translate-y-1 hover:shadow-[0_6px_24px_-8px_hsl(var(--primary)/0.12)] transition-all duration-300 p-3 sm:p-4">
-                    <div className="flex-1 w-full flex items-center justify-center">
+                  <DeepTilt key={brand.id} intensity={14}>
+                  <Link to={`/shop?brand=${encodeURIComponent(brand.name)}`} className="group flex flex-col items-center justify-center glass-card rounded-xl aspect-square hover:border-primary/25 hover:-translate-y-1 hover:shadow-[0_6px_24px_-8px_hsl(var(--primary)/0.12)] transition-all duration-300 p-3 sm:p-4" style={{ transformStyle: "preserve-3d" }}>
+                    <div className="flex-1 w-full flex items-center justify-center" style={{ transform: "translateZ(30px)" }}>
                       {brand.logo_url ? (
                         <img src={brand.logo_url} alt={brand.name} className="max-h-[50%] w-auto max-w-[80%] object-contain transition-transform duration-300 group-hover:scale-105" loading="lazy" decoding="async" width={80} height={80} />
                       ) : (
                         <span className="text-sm font-semibold text-foreground tracking-tight">{brand.name}</span>
                       )}
                     </div>
-                    <span className="text-[10px] sm:text-[11px] text-muted-foreground font-medium mt-1">{brand.name}</span>
+                    <span className="text-[10px] sm:text-[11px] text-muted-foreground font-medium mt-1" style={{ transform: "translateZ(18px)" }}>{brand.name}</span>
                   </Link>
+                  </DeepTilt>
                 ))}
               </div>
             </section>
@@ -415,9 +421,11 @@ const Index = () => {
                   )}
                 </FadeSection>
                 <FadeSection>
-                  <div className="aspect-[4/3] rounded-2xl overflow-hidden bg-secondary shadow-lg">
-                    <img src={brandStory.image || "/placeholder.svg"} alt="Our Story" className="w-full h-full object-cover" loading="lazy" decoding="async" width={600} height={450} />
-                  </div>
+                  <DeepTilt intensity={10}>
+                    <div className="aspect-[4/3] rounded-2xl overflow-hidden bg-secondary shadow-lg" style={{ transformStyle: "preserve-3d" }}>
+                      <img src={brandStory.image || "/placeholder.svg"} alt="Our Story" className="w-full h-full object-cover" loading="lazy" decoding="async" width={600} height={450} />
+                    </div>
+                  </DeepTilt>
                 </FadeSection>
               </div>
             </section>
@@ -432,13 +440,15 @@ const Index = () => {
               </FadeSection>
               <div ref={whyGrid.ref} className={`grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 ${whyGrid.className}`}>
                 {whyCards.map((card, idx) => (
-                  <div key={card.id} className="text-center p-4 sm:p-6 glass-card rounded-2xl hover:-translate-y-0.5 transition-transform duration-300">
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3 sm:mb-4 animate-float" style={{ animationDelay: `${idx * 0.5}s` }}>
+                  <DeepTilt key={card.id} intensity={14}>
+                  <div className="text-center p-4 sm:p-6 glass-card rounded-2xl hover:-translate-y-0.5 transition-transform duration-300 h-full" style={{ transformStyle: "preserve-3d" }}>
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3 sm:mb-4 animate-float" style={{ animationDelay: `${idx * 0.5}s`, transform: "translateZ(40px)" }}>
                       <DynamicIcon name={card.icon_name || "Shield"} className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                     </div>
-                    <h3 className="text-sm font-semibold text-foreground mb-1.5">{card.title}</h3>
+                    <h3 className="text-sm font-semibold text-foreground mb-1.5" style={{ transform: "translateZ(28px)" }}>{card.title}</h3>
                     <p className="text-xs sm:text-[13px] text-muted-foreground leading-relaxed">{card.description}</p>
                   </div>
+                  </DeepTilt>
                 ))}
               </div>
             </section>
