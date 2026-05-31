@@ -15,6 +15,7 @@ import type { Product, HomepageSection, Testimonial, HomeFaq, WhyChooseUsCard } 
 const VideoReels = lazy(() => import("@/components/homepage/VideoReels"));
 import { useToast } from "@/hooks/use-toast";
 import { useFadeIn, useStaggerIn } from "@/hooks/useMotion";
+import { ScrollScene } from "@/components/ui/scroll-scene";
 import { subscribeToNewsletter } from "@/lib/newsletter";
 import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 import { attachImagesToProducts } from "@/lib/productMedia";
