@@ -1,11 +1,13 @@
 import { Link } from "react-router-dom";
 import { ArrowLeftIcon } from "@/components/ui/icons";
+import { BeamsBackground } from "@/components/ui/beams-background";
 
 const NotFound = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <div className="text-center max-w-md">
-        <div className="text-7xl sm:text-8xl font-bold text-primary/20 mb-4 tabular-nums">404</div>
+    <div className="relative min-h-screen flex items-center justify-center bg-background px-4 overflow-hidden">
+      <BeamsBackground intensity="medium" />
+      <div className="relative text-center max-w-md">
+        <div className="text-7xl sm:text-8xl font-bold text-primary/30 mb-4 tabular-nums">404</div>
         <h1 className="text-xl sm:text-2xl font-semibold text-foreground mb-2">Page not found</h1>
         <p className="text-sm text-muted-foreground mb-8">
           The page you're looking for doesn't exist or has been moved.
