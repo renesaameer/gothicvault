@@ -188,6 +188,7 @@ const Footer = () => {
         </div>
       </div>
     </footer>
+    </ScrollScene>
   );
 };
 
