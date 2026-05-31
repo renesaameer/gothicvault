@@ -4,7 +4,7 @@ import { useLayoutData } from "./LayoutDataProvider";
 import { useToast } from "@/hooks/use-toast";
 import BrandMark from "@/components/brand/BrandMark";
 import { subscribeToNewsletter } from "@/lib/newsletter";
-import { ScrollScene } from "@/components/ui/scroll-scene";
+
 
 const isExternal = (url: string) => /^https?:\/\//i.test(url);
 
@@ -84,7 +84,7 @@ const Footer = () => {
   };
 
   return (
-    <ScrollScene variant="cinematic" intensity={0.9}>
+    
     <footer className="relative bg-background text-foreground">
 
       {/* Chain + crystal top separator */}
@@ -189,7 +189,7 @@ const Footer = () => {
         </div>
       </div>
     </footer>
-    </ScrollScene>
+    
   );
 };
 
