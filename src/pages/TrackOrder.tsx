@@ -53,11 +53,8 @@ const TrackOrder = () => {
         setOrders([]);
         const { data } = await supabase.rpc("track_order", { _order_number: prefilledOrder.trim() });
         const row = Array.isArray(data) ? data[0] : data;
-        if (!row) {
-          setError("No order found with this number");
-        } else {
-          setOrder(row);
-        }
+        if (!row) setError("No order found with this number");
+        else setOrder(row);
         setLoading(false);
       })();
     }
@@ -76,21 +73,14 @@ const TrackOrder = () => {
 
     if (searchType === "phone") {
       const { data } = await supabase.rpc("track_orders_by_phone", { _phone: searchValue.trim() });
-      if (!data || data.length === 0) {
-        setError("No orders found for this phone number");
-      } else if (data.length === 1) {
-        setOrder(data[0]);
-      } else {
-        setOrders(data);
-      }
+      if (!data || data.length === 0) setError("No orders found for this phone number");
+      else if (data.length === 1) setOrder(data[0]);
+      else setOrders(data);
     } else {
       const { data } = await supabase.rpc("track_order", { _order_number: searchValue.trim() });
       const row = Array.isArray(data) ? data[0] : data;
-      if (!row) {
-        setError("No order found with this number");
-      } else {
-        setOrder(row);
-      }
+      if (!row) setError("No order found with this number");
+      else setOrder(row);
     }
     setLoading(false);
   };
@@ -98,118 +88,173 @@ const TrackOrder = () => {
   const currentStep = order ? statusSteps.indexOf(order.order_status) : -1;
 
   return (
-    <div className="section-padding py-12 sm:py-16 page-enter relative overflow-hidden">
-      {/* Gothic animated beams backdrop */}
-      <BeamsBackground intensity="subtle" className="-z-10" />
-      <div className="fade-up">
-        <div className="max-w-2xl mx-auto">
-          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground mb-2 text-center sm:text-left">Track your order</h1>
-          <p className="text-sm text-muted-foreground mb-3 text-center sm:text-left">Enter your order number or phone to see status.</p>
-          <div className="premium-divider max-w-[40px] mb-6 mx-auto sm:mx-0" />
+    <div className="relative overflow-hidden page-enter">
+      {/* Cinematic beams backdrop covering full page */}
+      <BeamsBackground intensity="medium" className="!fixed inset-0 -z-10" />
+      {/* Vignette */}
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-0 -z-10"
+        style={{
+          background:
+            "radial-gradient(ellipse at 50% 0%, rgba(180,150,230,0.10) 0%, transparent 55%), radial-gradient(ellipse at 50% 100%, rgba(0,0,0,0.7) 0%, transparent 60%)",
+        }}
+      />
 
-          <div className="flex gap-2 mb-4">
-            <button
-              type="button"
-              onClick={() => { setSearchType("order"); setSearchValue(""); setError(""); setOrder(null); setOrders([]); }}
-              className={`px-4 py-2 rounded-full text-xs font-medium transition-all duration-150 ${searchType === "order" ? "bg-primary text-primary-foreground shadow-sm" : "bg-secondary/70 border border-border/40 text-foreground hover:border-border"}`}
-            >
-              Order number
-            </button>
-            <button
-              type="button"
-              onClick={() => { setSearchType("phone"); setSearchValue(""); setError(""); setOrder(null); setOrders([]); }}
-              className={`px-4 py-2 rounded-full text-xs font-medium transition-all duration-150 ${searchType === "phone" ? "bg-primary text-primary-foreground shadow-sm" : "bg-secondary/70 border border-border/40 text-foreground hover:border-border"}`}
-            >
-              Phone number
-            </button>
+      <div className="section-padding pt-16 sm:pt-20 pb-20 sm:pb-28">
+        <div className="max-w-3xl mx-auto">
+          {/* Eyebrow crest */}
+          <div className="fade-up flex items-center justify-center gap-3 mb-5">
+            <span className="h-px w-12 bg-gradient-to-r from-transparent via-border to-transparent" />
+            <span className="text-[10px] uppercase tracking-[0.42em] text-muted-foreground font-display">
+              The Vault · Tracking
+            </span>
+            <span className="h-px w-12 bg-gradient-to-r from-transparent via-border to-transparent" />
           </div>
 
-          <form onSubmit={handleTrack} className="flex gap-3 mb-10">
-            <Input
-              value={searchValue}
-              onChange={(e) => {
-                if (searchType === "phone") {
-                  setSearchValue(e.target.value.replace(/\D/g, "").slice(0, 11));
-                } else {
-                  setSearchValue(e.target.value.trim());
-                }
-              }}
-              placeholder={searchType === "order" ? "Enter your order number" : "Enter 11-digit phone number"}
-              className="flex-1"
-              inputMode={searchType === "phone" ? "numeric" : "text"}
-              maxLength={searchType === "phone" ? 11 : undefined}
-            />
-            <Button type="submit" disabled={loading} className="shadow-sm active:scale-[0.97] transition-transform duration-150">
-              <SearchIcon size={16} className="mr-1.5" />
-              {loading ? "..." : "Track"}
-            </Button>
-          </form>
+          {/* Hero title */}
+          <div className="fade-up text-center mb-3">
+            <h1 className="text-[34px] sm:text-5xl font-semibold tracking-[-0.03em] text-foreground leading-[1.05]">
+              Trace Your <em className="font-display italic text-primary">Treasure</em>
+            </h1>
+          </div>
+          <p className="fade-up text-center text-sm sm:text-base text-muted-foreground max-w-md mx-auto mb-6">
+            Every artifact carries a sigil. Enter yours to summon its current journey through the vault network.
+          </p>
+          <div className="fade-up premium-divider max-w-[80px] mx-auto mb-10" />
 
-          {/* Premium gothic globe hero */}
-          <div className="relative mx-auto w-full max-w-[340px] sm:max-w-[420px]">
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-0 -z-10 rounded-full blur-3xl"
-              style={{
-                background:
-                  "radial-gradient(circle, rgba(180,150,230,0.28), transparent 65%)",
-              }}
-            />
-            <GlobePulse />
-            <div className="mt-3 flex items-center justify-center gap-3 text-[10px] uppercase tracking-[0.32em] text-muted-foreground">
-              <span className="h-px w-10 bg-gradient-to-r from-transparent via-border to-transparent" />
-              <span className="font-display">Live Vault Network</span>
-              <span className="h-px w-10 bg-gradient-to-r from-transparent via-border to-transparent" />
+          {/* Search panel */}
+          <div className="fade-up glass-card rounded-[28px] p-5 sm:p-7 mb-10 relative overflow-hidden">
+            {/* Inner shimmer hairline */}
+            <div aria-hidden className="pointer-events-none absolute inset-0 rounded-[28px] ring-1 ring-inset ring-white/[0.04]" />
+
+            {/* Segmented control */}
+            <div className="relative mb-5 inline-flex p-1 rounded-full border border-border/40 bg-background/40 backdrop-blur-md">
+              {(["order", "phone"] as const).map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => { setSearchType(t); setSearchValue(""); setError(""); setOrder(null); setOrders([]); }}
+                  className={`relative px-5 py-2 rounded-full text-xs font-medium tracking-wide transition-all duration-300 ${
+                    searchType === t
+                      ? "bg-gradient-to-b from-primary/90 to-primary text-primary-foreground shadow-[0_4px_20px_-6px_hsl(var(--primary)/0.55)]"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {t === "order" ? "Order Number" : "Phone Number"}
+                </button>
+              ))}
             </div>
+
+            <form onSubmit={handleTrack} className="flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1 group">
+                <SearchIcon
+                  size={16}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/70 group-focus-within:text-primary transition-colors duration-300"
+                />
+                <Input
+                  value={searchValue}
+                  onChange={(e) => {
+                    if (searchType === "phone") setSearchValue(e.target.value.replace(/\D/g, "").slice(0, 11));
+                    else setSearchValue(e.target.value.trim());
+                  }}
+                  placeholder={searchType === "order" ? "e.g. AEROM-00231" : "11-digit phone number"}
+                  className="pl-11 h-12 rounded-full bg-background/40 border-border/40 focus-visible:border-primary/40 focus-visible:ring-2 focus-visible:ring-primary/20 backdrop-blur-md text-sm tracking-wide"
+                  inputMode={searchType === "phone" ? "numeric" : "text"}
+                  maxLength={searchType === "phone" ? 11 : undefined}
+                />
+              </div>
+              <Button
+                type="submit"
+                disabled={loading}
+                className="h-12 px-7 rounded-full bg-gradient-to-b from-primary/90 to-primary text-primary-foreground font-medium tracking-wide shadow-[0_8px_28px_-8px_hsl(var(--primary)/0.6)] hover:shadow-[0_10px_32px_-6px_hsl(var(--primary)/0.7)] hover:-translate-y-[1px] active:scale-[0.98] transition-all duration-300"
+              >
+                {loading ? "Summoning…" : "Trace Order"}
+              </Button>
+            </form>
+
+            {!loading && error && (
+              <p className="mt-4 text-xs text-destructive/90 tracking-wide animate-fade-in">{error}</p>
+            )}
           </div>
+
+          {/* Cinematic globe orb (decorative only when no result yet) */}
+          {!order && orders.length === 0 && !showLoadingSkeleton && (
+            <div className="fade-up relative mx-auto w-full max-w-[460px] mb-4">
+              {/* Concentric rings */}
+              <div aria-hidden className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="absolute h-[105%] w-[105%] rounded-full border border-primary/10 animate-[spin_60s_linear_infinite]" />
+                <div className="absolute h-[88%] w-[88%] rounded-full border border-primary/[0.07] animate-[spin_90s_linear_infinite_reverse]" />
+              </div>
+              {/* Inner glow */}
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-0 -z-10 rounded-full blur-3xl"
+                style={{
+                  background:
+                    "radial-gradient(circle, rgba(180,150,230,0.34), rgba(180,150,230,0.08) 45%, transparent 70%)",
+                }}
+              />
+              <GlobePulse />
+              <div className="mt-5 flex items-center justify-center gap-4 text-[10px] uppercase tracking-[0.42em] text-muted-foreground">
+                <span className="h-px w-14 bg-gradient-to-r from-transparent via-border to-transparent" />
+                <span className="font-display flex items-center gap-2">
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="absolute inset-0 rounded-full bg-primary/70 animate-ping" />
+                    <span className="relative rounded-full h-1.5 w-1.5 bg-primary" />
+                  </span>
+                  Live Vault Network
+                </span>
+                <span className="h-px w-14 bg-gradient-to-r from-transparent via-border to-transparent" />
+              </div>
+              <p className="mt-3 text-center text-[11px] text-muted-foreground/70 tracking-wide max-w-xs mx-auto">
+                Monitoring relays across the obsidian corridor in real time.
+              </p>
+            </div>
+          )}
 
           {showLoadingSkeleton && (
-            <div className="space-y-4 mb-6">
-              <div className="glass-card rounded-2xl p-6 space-y-4">
+            <div className="space-y-4 fade-up">
+              <div className="glass-card rounded-[28px] p-6 space-y-4">
                 <Skeleton className="h-4 w-28 mb-2" />
-                <div className="h-[1px] bg-muted mb-4" />
+                <div className="h-px bg-border/40 mb-4" />
                 <div className="flex items-center justify-between">
                   {[1, 2, 3, 4, 5].map((i) => (
                     <div key={i} className="flex flex-col items-center gap-2">
-                      <Skeleton className="w-10 h-10 rounded-full" />
+                      <Skeleton className="w-11 h-11 rounded-full" />
                       <Skeleton className="h-2.5 w-14" />
                     </div>
                   ))}
                 </div>
               </div>
-              <div className="glass-card rounded-2xl p-6 space-y-3">
+              <div className="glass-card rounded-[28px] p-6 space-y-3">
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="flex justify-between">
                     <Skeleton className="h-4 w-28" />
                     <Skeleton className="h-4 w-32" />
                   </div>
                 ))}
-                <div className="border-t border-border/40 pt-3 space-y-2">
-                  <Skeleton className="h-4 w-20 mb-2" />
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-full" />
-                </div>
               </div>
             </div>
           )}
 
-          {!loading && error && <p className="text-sm text-destructive mb-6">{error}</p>}
-
           {orders.length > 1 && !order && (
-            <div className="space-y-3 mb-6">
-              <p className="text-sm text-muted-foreground">{toBanglaDigits(orders.length)} orders found:</p>
+            <div className="space-y-3 mb-6 fade-up">
+              <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
+                {toBanglaDigits(orders.length)} artifacts found
+              </p>
               {orders.map((o) => (
                 <button
                   key={o.id}
                   onClick={() => { setOrder(o); setOrders([]); }}
-                  className="w-full text-left glass-card rounded-xl p-4 hover:border-primary/30 hover:-translate-y-0.5 transition-all duration-150 active:scale-[0.99]"
+                  className="group w-full text-left glass-card rounded-2xl p-5 hover:border-primary/40 hover:-translate-y-0.5 hover:shadow-[0_12px_36px_-12px_hsl(var(--primary)/0.4)] transition-all duration-300 active:scale-[0.99]"
                 >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-medium text-foreground">#{o.order_number}</span>
-                    <span className="text-sm font-medium text-foreground tabular-nums">{CURRENCY_SYMBOL}{toBanglaDigits(Number(o.total).toFixed(0))}</span>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-sm font-medium text-foreground tracking-wide">#{o.order_number}</span>
+                    <span className="text-sm font-semibold text-foreground tabular-nums">{CURRENCY_SYMBOL}{toBanglaDigits(Number(o.total).toFixed(0))}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">{statusLabels[o.order_status] || o.order_status}</span>
+                    <span className="text-[11px] uppercase tracking-[0.25em] text-primary/80">{statusLabels[o.order_status] || o.order_status}</span>
                     <span className="text-xs text-muted-foreground">{toBanglaDigits(new Date(o.created_at).toLocaleDateString("bn-BD"))}</span>
                   </div>
                 </button>
@@ -220,90 +265,98 @@ const TrackOrder = () => {
           {order && (
             <div className="fade-up space-y-6">
               {orders.length > 0 && (
-                <button onClick={() => { setOrder(null); }} className="text-sm text-muted-foreground hover:text-primary transition-colors">← Back to results</button>
+                <button onClick={() => setOrder(null)} className="text-xs uppercase tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors">
+                  ← Back to results
+                </button>
               )}
 
-              <div className="glass-card rounded-2xl p-6">
-                <h2 className="text-sm font-semibold text-foreground mb-1">Order Status</h2>
-                <div className="premium-divider mb-6" />
-                <div className="flex items-center justify-between relative">
-                  <div className="absolute top-5 left-0 right-0 h-0.5 bg-border/40" />
-                  <div className="absolute top-5 left-0 h-0.5 bg-primary transition-all duration-150" style={{ width: `${Math.max(0, currentStep) / (statusSteps.length - 1) * 100}%` }} />
+              {/* Status timeline */}
+              <div className="glass-card rounded-[28px] p-6 sm:p-7 relative overflow-hidden">
+                <div aria-hidden className="pointer-events-none absolute inset-0 rounded-[28px] ring-1 ring-inset ring-white/[0.04]" />
+                <div className="flex items-center justify-between mb-1">
+                  <h2 className="text-[10px] uppercase tracking-[0.42em] text-muted-foreground font-display">Journey</h2>
+                  <span className="text-[10px] uppercase tracking-[0.3em] text-primary/80">#{order.order_number}</span>
+                </div>
+                <div className="premium-divider mb-7" />
+                <div className="flex items-center justify-between relative px-1">
+                  <div className="absolute top-[22px] left-0 right-0 h-px bg-border/40" />
+                  <div
+                    className="absolute top-[22px] left-0 h-px bg-gradient-to-r from-primary/40 via-primary to-primary/80 transition-all duration-700 shadow-[0_0_12px_hsl(var(--primary)/0.6)]"
+                    style={{ width: `${Math.max(0, currentStep) / (statusSteps.length - 1) * 100}%` }}
+                  />
                   {statusSteps.map((step, i) => {
                     const Icon = statusIcons[step];
                     const isActive = i <= currentStep;
                     const isCurrent = i === currentStep;
                     return (
                       <div key={step} className="relative flex flex-col items-center z-10">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-150 ${isActive ? "bg-primary text-primary-foreground shadow-[0_2px_8px_-3px_hsl(var(--primary)/0.3)]" : "bg-secondary text-muted-foreground border border-border/40"} ${isCurrent ? "ring-4 ring-primary/15 scale-110" : ""}`}>
+                        <div
+                          className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-500 ${
+                            isActive
+                              ? "bg-gradient-to-b from-primary/90 to-primary text-primary-foreground shadow-[0_4px_20px_-4px_hsl(var(--primary)/0.6)]"
+                              : "bg-secondary/60 text-muted-foreground/60 border border-border/40"
+                          } ${isCurrent ? "ring-[3px] ring-primary/25 scale-110" : ""}`}
+                        >
                           <Icon size={16} />
                         </div>
-                        <span className={`text-[11px] mt-2 ${isActive ? "text-foreground font-medium" : "text-muted-foreground"}`}>{statusLabels[step] || step}</span>
+                        <span className={`text-[10px] mt-2 uppercase tracking-[0.18em] ${isActive ? "text-foreground" : "text-muted-foreground/60"}`}>
+                          {statusLabels[step] || step}
+                        </span>
                       </div>
                     );
                   })}
                 </div>
               </div>
 
-              <div className="glass-card rounded-2xl p-6 space-y-4">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Order number</span>
-                  <span className="text-foreground font-medium">{order.order_number}</span>
+              {/* Details */}
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="glass-card rounded-[28px] p-6 space-y-3.5">
+                  <h3 className="text-[10px] uppercase tracking-[0.42em] text-muted-foreground font-display mb-1">Manifest</h3>
+                  <div className="premium-divider mb-2" />
+                  <Row label="Date" value={toBanglaDigits(new Date(order.created_at).toLocaleDateString("bn-BD"))} />
+                  <Row label="Payment" value={paymentLabels[order.payment_status] || order.payment_status} />
+                  {order.tracking_number && <Row label="Tracking" value={order.tracking_number} />}
+                  {order.steadfast_tracking_code && <Row label="Courier (Steadfast)" value={order.steadfast_tracking_code} />}
+                  {order.steadfast_status && <Row label="Courier status" value={String(order.steadfast_status).replace(/_/g, " ")} mono />}
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Date</span>
-                  <span className="text-foreground">{toBanglaDigits(new Date(order.created_at).toLocaleDateString("bn-BD"))}</span>
+
+                <div className="glass-card rounded-[28px] p-6 space-y-2">
+                  <h3 className="text-[10px] uppercase tracking-[0.42em] text-muted-foreground font-display mb-1">Ledger</h3>
+                  <div className="premium-divider mb-2" />
+                  <Row label="Subtotal" value={`${CURRENCY_SYMBOL}${toBanglaDigits(Number(order.subtotal).toFixed(0))}`} />
+                  {Number(order.discount_amount) > 0 && (
+                    <Row
+                      label={`Discount${order.coupon_code ? ` (${order.coupon_code})` : ""}`}
+                      value={`-${CURRENCY_SYMBOL}${toBanglaDigits(Number(order.discount_amount).toFixed(0))}`}
+                      accent
+                    />
+                  )}
+                  <Row label="Shipping" value={`${CURRENCY_SYMBOL}${toBanglaDigits(Number(order.shipping_cost).toFixed(0))}`} />
+                  <div className="pt-3 mt-2 border-t border-border/40 flex justify-between items-baseline">
+                    <span className="text-[10px] uppercase tracking-[0.32em] text-muted-foreground">Total</span>
+                    <span className="text-xl font-semibold tracking-tight tabular-nums text-foreground">
+                      {CURRENCY_SYMBOL}{toBanglaDigits(Number(order.total).toFixed(0))}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Payment</span>
-                  <span className="text-foreground">{paymentLabels[order.payment_status] || order.payment_status}</span>
-                </div>
-                {order.tracking_number && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Tracking</span>
-                    <span className="text-foreground">{order.tracking_number}</span>
-                  </div>
-                )}
-                {order.steadfast_tracking_code && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Courier tracking (Steadfast)</span>
-                    <span className="text-foreground">{order.steadfast_tracking_code}</span>
-                  </div>
-                )}
-                {order.steadfast_status && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Courier status</span>
-                    <span className="text-foreground capitalize">{String(order.steadfast_status).replace(/_/g, " ")}</span>
-                  </div>
-                )}
-                <div className="border-t border-border/40 pt-4">
-                  <h3 className="text-sm font-semibold text-foreground mb-3">Items</h3>
+              </div>
+
+              {/* Items */}
+              <div className="glass-card rounded-[28px] p-6">
+                <h3 className="text-[10px] uppercase tracking-[0.42em] text-muted-foreground font-display mb-1">Artifacts</h3>
+                <div className="premium-divider mb-4" />
+                <div className="divide-y divide-border/30">
                   {(order.items || []).map((item: any, i: number) => (
-                    <div key={i} className="flex justify-between text-sm py-1.5">
-                      <span className="text-foreground">{item.name} × {toBanglaDigits(item.quantity || 1)}</span>
-                      <span className="text-foreground font-medium tabular-nums">{CURRENCY_SYMBOL}{toBanglaDigits(Number(item.price * (item.quantity || 1)).toFixed(0))}</span>
+                    <div key={i} className="flex justify-between items-center py-3 text-sm">
+                      <span className="text-foreground tracking-wide">
+                        {item.name}
+                        <span className="text-muted-foreground"> · ×{toBanglaDigits(item.quantity || 1)}</span>
+                      </span>
+                      <span className="text-foreground font-medium tabular-nums">
+                        {CURRENCY_SYMBOL}{toBanglaDigits(Number(item.price * (item.quantity || 1)).toFixed(0))}
+                      </span>
                     </div>
                   ))}
-                </div>
-                <div className="border-t border-border/40 pt-3 space-y-1">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Subtotal</span>
-                    <span className="tabular-nums">{CURRENCY_SYMBOL}{toBanglaDigits(Number(order.subtotal).toFixed(0))}</span>
-                  </div>
-                  {Number(order.discount_amount) > 0 && (
-                    <div className="flex justify-between text-sm text-primary">
-                      <span>Discount{order.coupon_code ? ` (${order.coupon_code})` : ""}</span>
-                      <span className="tabular-nums">-{CURRENCY_SYMBOL}{toBanglaDigits(Number(order.discount_amount).toFixed(0))}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Shipping</span>
-                    <span className="tabular-nums">{CURRENCY_SYMBOL}{toBanglaDigits(Number(order.shipping_cost).toFixed(0))}</span>
-                  </div>
-                  <div className="flex justify-between text-sm font-semibold pt-1 border-t border-border/40">
-                    <span>Total</span>
-                    <span className="tabular-nums">{CURRENCY_SYMBOL}{toBanglaDigits(Number(order.total).toFixed(0))}</span>
-                  </div>
                 </div>
               </div>
             </div>
@@ -313,5 +366,14 @@ const TrackOrder = () => {
     </div>
   );
 };
+
+const Row = ({ label, value, accent, mono }: { label: string; value: string; accent?: boolean; mono?: boolean }) => (
+  <div className="flex justify-between items-center text-sm">
+    <span className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">{label}</span>
+    <span className={`${accent ? "text-primary" : "text-foreground"} ${mono ? "capitalize" : ""} font-medium tabular-nums tracking-wide`}>
+      {value}
+    </span>
+  </div>
+);
 
 export default TrackOrder;
