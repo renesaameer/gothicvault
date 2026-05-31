@@ -288,6 +288,28 @@ const HomepageManager = ({ hideTitle: _hideTitle }: { hideTitle?: boolean }) => 
                       </>
                     )}
 
+                    {section.id === "featured_image" && (
+                      <>
+                        <Field label="Title (optional)"><Input value={section.content.section_title ?? ""} onChange={(e) => updateContent(section, "section_title", e.target.value)} placeholder="New Arrivals" /></Field>
+                        <Field label="Subtitle (optional)"><Input value={section.content.subtitle ?? ""} onChange={(e) => updateContent(section, "subtitle", e.target.value)} placeholder="Crafted for modern carry" /></Field>
+                        <ImageUpload
+                          value={section.content.image ? [section.content.image] : []}
+                          onChange={(urls) => saveContentKey(section, "image", urls[0] || "")}
+                          multiple={false}
+                          label="Banner image"
+                          hint="Recommended: 1920 × 720 px · JPG or PNG"
+                        />
+                        <div className="grid grid-cols-2 gap-3">
+                          <Field label="Button text"><Input value={section.content.button_text ?? ""} onChange={(e) => updateContent(section, "button_text", e.target.value)} placeholder="Shop now" /></Field>
+                          <Field label="Button link"><Input value={section.content.button_link ?? ""} onChange={(e) => updateContent(section, "button_link", e.target.value)} placeholder="/shop" /></Field>
+                        </div>
+                        <label className="flex items-center gap-2 text-[12.5px]" style={{ color: "hsl(var(--a-text))" }}>
+                          <Switch checked={section.content.overlay ?? true} onCheckedChange={(v) => updateContent(section, "overlay", v)} />
+                          Dark overlay (for text legibility)
+                        </label>
+                      </>
+                    )}
+
                     {section.id === "newsletter" && (
                       <>
                         <Field label="Title"><Input value={section.content.title ?? ""} onChange={(e) => updateContent(section, "title", e.target.value)} placeholder="Join the Atelier" /></Field>
