@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { DeepTilt, ParallaxImage, ScrollScene } from "@/components/ui/scroll-scene";
 
 export interface FeaturedCategory {
   id: string;
@@ -24,15 +25,17 @@ const Card = ({
 }) => {
   const inner = (
     <>
-      <img
+      <ParallaxImage
         src={cat.image_url || "/placeholder.svg"}
         alt={cat.title || "Category"}
         loading={priority ? "eager" : "lazy"}
         decoding="async"
-        className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
+        speed={0.35}
+        scale={1.2}
+        className="transition-transform duration-[1200ms] ease-out group-hover:scale-[1.08]"
       />
-      <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-      <div className="absolute inset-x-0 bottom-0 p-4 sm:p-6 text-white">
+      <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 p-4 sm:p-6 text-white" style={{ transform: "translateZ(40px)" }}>
         <span className="inline-block text-[18px] sm:text-[22px] font-medium leading-none border-b border-current pb-1">
           {cat.title}
         </span>
@@ -40,12 +43,20 @@ const Card = ({
     </>
   );
   const wrapCls = `group relative overflow-hidden bg-secondary/40 ${className}`;
-  return link ? (
-    <Link to={link} className={wrapCls} aria-label={cat.title || undefined}>{inner}</Link>
+  const body = link ? (
+    <Link to={link} className={`${wrapCls} block h-full w-full`} aria-label={cat.title || undefined}>{inner}</Link>
   ) : (
-    <div className={wrapCls}>{inner}</div>
+    <div className={`${wrapCls} h-full w-full`}>{inner}</div>
+  );
+  return (
+    <DeepTilt intensity={10} className={className}>
+      <div className="relative h-full w-full" style={{ transformStyle: "preserve-3d" }}>
+        {body}
+      </div>
+    </DeepTilt>
   );
 };
+
 
 const FeaturedCategories = ({
   categories,

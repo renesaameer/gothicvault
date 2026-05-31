@@ -15,6 +15,7 @@ import type { Product, HomepageSection, Testimonial, HomeFaq, WhyChooseUsCard } 
 const VideoReels = lazy(() => import("@/components/homepage/VideoReels"));
 import { useToast } from "@/hooks/use-toast";
 import { useFadeIn, useStaggerIn } from "@/hooks/useMotion";
+import { ScrollScene } from "@/components/ui/scroll-scene";
 import { subscribeToNewsletter } from "@/lib/newsletter";
 import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 import { attachImagesToProducts } from "@/lib/productMedia";
@@ -55,8 +56,11 @@ interface Brand { id: string; name: string; slug: string; logo_url: string | nul
 
 
 const FadeSection = forwardRef<HTMLDivElement, { children: React.ReactNode; className?: string }>(({ children, className = "" }, _ref) => {
-  const fade = useFadeIn();
-  return <div ref={fade.ref} className={`${fade.className} ${className}`}>{children}</div>;
+  return (
+    <ScrollScene variant="cinematic" intensity={0.85} className={className}>
+      {children}
+    </ScrollScene>
+  );
 });
 FadeSection.displayName = "FadeSection";
 
@@ -249,8 +253,11 @@ const Index = () => {
       )}
 
       {hasLoadedHomepageData && featuredCategories.length > 0 && (
-        <FeaturedCategories categories={featuredCategories} categoryRefs={categories} />
+        <ScrollScene variant="cinematic" intensity={1.1}>
+          <FeaturedCategories categories={featuredCategories} categoryRefs={categories} />
+        </ScrollScene>
       )}
+
 
       {/* Reserve space for sections during initial load to prevent CLS jump */}
       {!hasLoadedHomepageData && (
@@ -463,13 +470,16 @@ const Index = () => {
 
           {hasLoadedHomepageData && isEnabled("video_reels") && reels.length > 0 && (
             <Suspense fallback={null}>
-              <VideoReels
-                reels={reels}
-                sectionTitle={sectionContent("video_reels").section_title || "Real Customer Experiences"}
-                subtitle={sectionContent("video_reels").subtitle || "See how our community experiences the collection."}
-              />
+              <ScrollScene variant="cinematic" intensity={1.2}>
+                <VideoReels
+                  reels={reels}
+                  sectionTitle={sectionContent("video_reels").section_title || "Real Customer Experiences"}
+                  subtitle={sectionContent("video_reels").subtitle || "See how our community experiences the collection."}
+                />
+              </ScrollScene>
             </Suspense>
           )}
+
 
 
           {hasLoadedHomepageData && isEnabled("faq") && faqs.length > 0 && (

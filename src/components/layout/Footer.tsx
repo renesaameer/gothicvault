@@ -4,6 +4,7 @@ import { useLayoutData } from "./LayoutDataProvider";
 import { useToast } from "@/hooks/use-toast";
 import BrandMark from "@/components/brand/BrandMark";
 import { subscribeToNewsletter } from "@/lib/newsletter";
+import { ScrollScene } from "@/components/ui/scroll-scene";
 
 const isExternal = (url: string) => /^https?:\/\//i.test(url);
 
@@ -83,7 +84,9 @@ const Footer = () => {
   };
 
   return (
+    <ScrollScene variant="cinematic" intensity={0.9}>
     <footer className="relative bg-background text-foreground">
+
       {/* Chain + crystal top separator */}
       <div aria-hidden className="relative flex items-center justify-center pt-10 sm:pt-14 lg:pt-16 pb-2">
         <div className="flex-1 h-px max-w-[38%] bg-[linear-gradient(90deg,transparent,rgba(220,210,240,0.45),transparent)]" />
@@ -186,6 +189,7 @@ const Footer = () => {
         </div>
       </div>
     </footer>
+    </ScrollScene>
   );
 };
 
