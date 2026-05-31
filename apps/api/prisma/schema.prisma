@@ -11,6 +11,7 @@ model Profile {
   id        String     @id @default(uuid())
   userId    String     @unique
   email     String?
+  password  String?
   fullName  String?
   avatarUrl String?
   isAdmin   Boolean?
