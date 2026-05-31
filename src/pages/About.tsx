@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { ScrollScene } from "@/components/ui/scroll-scene";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import DynamicIcon from "@/components/ui/DynamicIcon";

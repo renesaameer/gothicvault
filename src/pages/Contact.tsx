@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { ScrollScene } from "@/components/ui/scroll-scene";
 import { MailIcon, PhoneIcon, MapPinIcon, SendIcon, ExternalLinkIcon } from "@/components/ui/icons";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
