@@ -1497,6 +1497,7 @@ export type Database = {
           created_at: string
           id: string
           image_url: string
+          main_image_url: string | null
           name: string
           rating: number
           review: string
@@ -1506,6 +1507,7 @@ export type Database = {
           created_at?: string
           id?: string
           image_url?: string
+          main_image_url?: string | null
           name: string
           rating?: number
           review?: string
@@ -1515,6 +1517,7 @@ export type Database = {
           created_at?: string
           id?: string
           image_url?: string
+          main_image_url?: string | null
           name?: string
           rating?: number
           review?: string
