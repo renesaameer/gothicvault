@@ -10,7 +10,7 @@ import { useDelayedLoading } from "@/hooks/useDelayedLoading";
 import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 import { GlobePulse } from "@/components/ui/cobe-globe-pulse";
 import { BeamsBackground } from "@/components/ui/beams-background";
-import { OrderTrackingParallaxCard } from "@/components/ui/order-tracking-parallax-card";
+
 
 const statusSteps = ["pending", "confirmed", "processing", "shipped", "delivered"];
 const statusLabels: Record<string, string> = { pending: "Pending", confirmed: "Confirmed", processing: "Processing", shipped: "Shipped", delivered: "Delivered" };
@@ -264,86 +264,137 @@ const TrackOrder = () => {
           )}
 
           {order && (
-            <div className="fade-up space-y-6">
+            <div className="fade-up">
               {orders.length > 0 && (
-                <button onClick={() => setOrder(null)} className="text-xs uppercase tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors">
+                <button onClick={() => setOrder(null)} className="mb-4 text-xs uppercase tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors">
                   ← Back to results
                 </button>
               )}
 
-              {/* Parallax 3D status card */}
-              <OrderTrackingParallaxCard
-                orderId={order.order_number}
-                product={
-                  (order.items && order.items[0]?.name)
-                    ? `${order.items[0].name}${order.items.length > 1 ? ` + ${toBanglaDigits(order.items.length - 1)} more` : ""}`
-                    : "Your Order"
-                }
-                status={order.order_status as any}
-                eta={
-                  order.order_status === "delivered"
-                    ? "Delivered"
-                    : order.order_status === "shipped"
-                      ? "1–2 days"
-                      : "2–4 days"
-                }
-                total={`${CURRENCY_SYMBOL}${toBanglaDigits(Number(order.total).toFixed(0))}`}
-              />
-
-
-              {/* Details */}
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div className="glass-card rounded-[28px] p-6 space-y-3.5">
-                  <h3 className="text-[10px] uppercase tracking-[0.42em] text-muted-foreground font-display mb-1">Manifest</h3>
-                  <div className="premium-divider mb-2" />
-                  <Row label="Date" value={toBanglaDigits(new Date(order.created_at).toLocaleDateString("bn-BD"))} />
-                  <Row label="Payment" value={paymentLabels[order.payment_status] || order.payment_status} />
-                  {order.tracking_number && <Row label="Tracking" value={order.tracking_number} />}
-                  {order.steadfast_tracking_code && <Row label="Courier (Steadfast)" value={order.steadfast_tracking_code} />}
-                  {order.steadfast_status && <Row label="Courier status" value={String(order.steadfast_status).replace(/_/g, " ")} mono />}
-                </div>
-
-                <div className="glass-card rounded-[28px] p-6 space-y-2">
-                  <h3 className="text-[10px] uppercase tracking-[0.42em] text-muted-foreground font-display mb-1">Ledger</h3>
-                  <div className="premium-divider mb-2" />
-                  <Row label="Subtotal" value={`${CURRENCY_SYMBOL}${toBanglaDigits(Number(order.subtotal).toFixed(0))}`} />
-                  {Number(order.discount_amount) > 0 && (
-                    <Row
-                      label={`Discount${order.coupon_code ? ` (${order.coupon_code})` : ""}`}
-                      value={`-${CURRENCY_SYMBOL}${toBanglaDigits(Number(order.discount_amount).toFixed(0))}`}
-                      accent
-                    />
-                  )}
-                  <Row label="Shipping" value={`${CURRENCY_SYMBOL}${toBanglaDigits(Number(order.shipping_cost).toFixed(0))}`} />
-                  <div className="pt-3 mt-2 border-t border-border/40 flex justify-between items-baseline">
-                    <span className="text-[10px] uppercase tracking-[0.32em] text-muted-foreground">Total</span>
-                    <span className="text-xl font-semibold tracking-tight tabular-nums text-foreground">
-                      {CURRENCY_SYMBOL}{toBanglaDigits(Number(order.total).toFixed(0))}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Items */}
-              <div className="glass-card rounded-[28px] p-6">
-                <h3 className="text-[10px] uppercase tracking-[0.42em] text-muted-foreground font-display mb-1">Artifacts</h3>
-                <div className="premium-divider mb-4" />
-                <div className="divide-y divide-border/30">
-                  {(order.items || []).map((item: any, i: number) => (
-                    <div key={i} className="flex justify-between items-center py-3 text-sm">
-                      <span className="text-foreground tracking-wide">
-                        {item.name}
-                        <span className="text-muted-foreground"> · ×{toBanglaDigits(item.quantity || 1)}</span>
-                      </span>
-                      <span className="text-foreground font-medium tabular-nums">
-                        {CURRENCY_SYMBOL}{toBanglaDigits(Number(item.price * (item.quantity || 1)).toFixed(0))}
+              {/* Unified order card */}
+              <div className="glass-card rounded-[28px] overflow-hidden">
+                {/* Hero: status + order */}
+                <div className="relative p-6 sm:p-8 border-b border-border/30">
+                  <div
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 opacity-60"
+                    style={{
+                      background:
+                        "radial-gradient(ellipse at 20% 0%, hsl(var(--primary) / 0.18), transparent 60%), radial-gradient(ellipse at 100% 100%, hsl(var(--primary) / 0.10), transparent 55%)",
+                    }}
+                  />
+                  <div className="relative flex items-start justify-between gap-4 mb-6">
+                    <div>
+                      <p className="text-[10px] uppercase tracking-[0.42em] text-muted-foreground font-display mb-2">Order</p>
+                      <p className="text-lg sm:text-xl font-semibold tracking-tight text-foreground">#{order.order_number}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{toBanglaDigits(new Date(order.created_at).toLocaleDateString("bn-BD"))}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[10px] uppercase tracking-[0.42em] text-muted-foreground font-display mb-2">Total</p>
+                      <p className="text-xl sm:text-2xl font-semibold tracking-tight tabular-nums text-foreground">
+                        {CURRENCY_SYMBOL}{toBanglaDigits(Number(order.total).toFixed(0))}
+                      </p>
+                      <span className="inline-flex items-center gap-1.5 mt-1.5 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20 text-[10px] uppercase tracking-[0.22em] text-primary font-medium">
+                        <span className="relative flex h-1.5 w-1.5">
+                          <span className="absolute inset-0 rounded-full bg-primary/70 animate-ping" />
+                          <span className="relative rounded-full h-1.5 w-1.5 bg-primary" />
+                        </span>
+                        {statusLabels[order.order_status] || order.order_status}
                       </span>
                     </div>
-                  ))}
+                  </div>
+
+                  {/* Status stepper */}
+                  <div className="relative">
+                    <div className="absolute top-[18px] left-[18px] right-[18px] h-px bg-border/40" />
+                    <div
+                      className="absolute top-[18px] left-[18px] h-px bg-gradient-to-r from-primary/80 to-primary transition-all duration-700"
+                      style={{ width: currentStep > 0 ? `calc(${(currentStep / (statusSteps.length - 1)) * 100}% - ${(currentStep / (statusSteps.length - 1)) * 36}px)` : "0px" }}
+                    />
+                    <div className="relative flex items-center justify-between">
+                      {statusSteps.map((step, i) => {
+                        const Icon = statusIcons[step];
+                        const active = i <= currentStep;
+                        return (
+                          <div key={step} className="flex flex-col items-center gap-2">
+                            <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-500 ${
+                              active
+                                ? "bg-gradient-to-b from-primary/90 to-primary text-primary-foreground shadow-[0_6px_20px_-6px_hsl(var(--primary)/0.6)]"
+                                : "bg-background/40 border border-border/40 text-muted-foreground/60"
+                            }`}>
+                              <Icon size={14} />
+                            </div>
+                            <span className={`text-[9px] uppercase tracking-[0.22em] ${active ? "text-foreground" : "text-muted-foreground/60"}`}>
+                              {statusLabels[step]}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Items */}
+                <div className="p-6 sm:p-8 border-b border-border/30">
+                  <h3 className="text-[10px] uppercase tracking-[0.42em] text-muted-foreground font-display mb-4">Artifacts</h3>
+                  <div className="divide-y divide-border/30">
+                    {(order.items || []).map((item: any, i: number) => (
+                      <div key={i} className="flex justify-between items-center py-3 text-sm first:pt-0 last:pb-0">
+                        <span className="text-foreground tracking-wide">
+                          {item.name}
+                          <span className="text-muted-foreground"> · ×{toBanglaDigits(item.quantity || 1)}</span>
+                        </span>
+                        <span className="text-foreground font-medium tabular-nums">
+                          {CURRENCY_SYMBOL}{toBanglaDigits(Number(item.price * (item.quantity || 1)).toFixed(0))}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Ledger + Manifest combined */}
+                <div className="p-6 sm:p-8 grid sm:grid-cols-2 gap-x-8 gap-y-2">
+                  <div className="space-y-2.5">
+                    <h3 className="text-[10px] uppercase tracking-[0.42em] text-muted-foreground font-display mb-2">Ledger</h3>
+                    <Row label="Subtotal" value={`${CURRENCY_SYMBOL}${toBanglaDigits(Number(order.subtotal).toFixed(0))}`} />
+                    {Number(order.discount_amount) > 0 && (
+                      <Row
+                        label={`Discount${order.coupon_code ? ` (${order.coupon_code})` : ""}`}
+                        value={`-${CURRENCY_SYMBOL}${toBanglaDigits(Number(order.discount_amount).toFixed(0))}`}
+                        accent
+                      />
+                    )}
+                    <Row label="Shipping" value={`${CURRENCY_SYMBOL}${toBanglaDigits(Number(order.shipping_cost).toFixed(0))}`} />
+                    <div className="pt-2.5 mt-1 border-t border-border/40 flex justify-between items-baseline">
+                      <span className="text-[10px] uppercase tracking-[0.32em] text-muted-foreground">Total</span>
+                      <span className="text-base font-semibold tracking-tight tabular-nums text-foreground">
+                        {CURRENCY_SYMBOL}{toBanglaDigits(Number(order.total).toFixed(0))}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2.5 mt-6 sm:mt-0 pt-6 sm:pt-0 border-t sm:border-t-0 sm:border-l border-border/40 sm:pl-8">
+                    <h3 className="text-[10px] uppercase tracking-[0.42em] text-muted-foreground font-display mb-2">Manifest</h3>
+                    <Row label="Payment" value={paymentLabels[order.payment_status] || order.payment_status} />
+                    {order.tracking_number && <Row label="Tracking" value={order.tracking_number} />}
+                    {order.steadfast_tracking_code && <Row label="Courier" value={order.steadfast_tracking_code} />}
+                    {order.steadfast_status && <Row label="Courier status" value={String(order.steadfast_status).replace(/_/g, " ")} mono />}
+                    <Row
+                      label="ETA"
+                      value={
+                        order.order_status === "delivered"
+                          ? "Delivered"
+                          : order.order_status === "shipped"
+                            ? "1–2 days"
+                            : "2–4 days"
+                      }
+                    />
+                  </div>
                 </div>
               </div>
             </div>
           )}
+
         </div>
       </div>
     </div>
