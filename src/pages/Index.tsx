@@ -21,22 +21,8 @@ import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 import { attachImagesToProducts } from "@/lib/productMedia";
 import TestimonialsSection, { fromDbTestimonials } from "@/components/ui/testimonial-v2";
 
-const ResponsiveMasonry = ({ items }: { items: MasonryTestimonial[] }) => {
-  const [cols, setCols] = useState(() => {
-    if (typeof window === "undefined") return 4;
-    const w = window.innerWidth;
-    return w < 640 ? 1 : w < 1024 ? 2 : w < 1280 ? 3 : 4;
-  });
-  useEffect(() => {
-    const onResize = () => {
-      const w = window.innerWidth;
-      setCols(w < 640 ? 1 : w < 1024 ? 2 : w < 1280 ? 3 : 4);
-    };
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
-  return <MasonryGrid items={items} columns={cols} gap={5} />;
-};
+
+
 
 const LazyAccordion = lazy(() => import("@/components/ui/accordion").then(mod => ({
   default: forwardRef<HTMLDivElement, { faqs: HomeFaq[] }>(({ faqs }, ref) => (
