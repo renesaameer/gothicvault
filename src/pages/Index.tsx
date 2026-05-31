@@ -18,6 +18,7 @@ import { useFadeIn, useStaggerIn } from "@/hooks/useMotion";
 import { subscribeToNewsletter } from "@/lib/newsletter";
 import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 import { attachImagesToProducts } from "@/lib/productMedia";
+import { TestimonialsColumn } from "@/components/ui/testimonials-columns-1";
 
 const LazyAccordion = lazy(() => import("@/components/ui/accordion").then(mod => ({
   default: forwardRef<HTMLDivElement, { faqs: HomeFaq[] }>(({ faqs }, ref) => (
