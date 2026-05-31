@@ -181,7 +181,7 @@ const TrackOrder = () => {
 
           {/* Cinematic globe orb (decorative only when no result yet) */}
           {!order && orders.length === 0 && !showLoadingSkeleton && (
-            <div className="fade-up relative mx-auto w-full max-w-[460px] mb-4">
+            <div className="fade-up relative mx-auto w-full max-w-[340px] sm:max-w-[380px] mb-2">
               {/* Concentric rings */}
               <div aria-hidden className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <div className="absolute h-[105%] w-[105%] rounded-full border border-primary/10 animate-[spin_60s_linear_infinite]" />
@@ -197,22 +197,9 @@ const TrackOrder = () => {
                 }}
               />
               <GlobePulse />
-              <div className="mt-5 flex items-center justify-center gap-4 text-[10px] uppercase tracking-[0.42em] text-muted-foreground">
-                <span className="h-px w-14 bg-gradient-to-r from-transparent via-border to-transparent" />
-                <span className="font-display flex items-center gap-2">
-                  <span className="relative flex h-1.5 w-1.5">
-                    <span className="absolute inset-0 rounded-full bg-primary/70 animate-ping" />
-                    <span className="relative rounded-full h-1.5 w-1.5 bg-primary" />
-                  </span>
-                  Live Vault Network
-                </span>
-                <span className="h-px w-14 bg-gradient-to-r from-transparent via-border to-transparent" />
-              </div>
-              <p className="mt-3 text-center text-[11px] text-muted-foreground/70 tracking-wide max-w-xs mx-auto">
-                Monitoring relays across the obsidian corridor in real time.
-              </p>
             </div>
           )}
+
 
           {showLoadingSkeleton && (
             <div className="space-y-4 fade-up">
