@@ -77,7 +77,7 @@ const ProductCard = forwardRef<HTMLAnchorElement, ProductCardProps>(({ product, 
 
   return (
     <Link ref={ref} to={`/product/${product.slug}`} className="group block" onMouseEnter={prefetchProduct} onTouchStart={prefetchProduct}>
-      <TiltCard intensity={6} perspective={1200} className="h-full">
+      <TiltCard intensity={14} perspective={1400} className="h-full">
       <div className="flex flex-col h-full rounded-[20px] sm:rounded-[24px] border border-black/[0.06] hover:border-black/[0.12] p-2 sm:p-2.5 transition-colors duration-300 [transform-style:preserve-3d]">
         <div className="relative aspect-[4/5] overflow-hidden rounded-[14px] sm:rounded-[18px] bg-white transition-shadow duration-500 group-hover:shadow-[0_24px_60px_-30px_rgba(0,0,0,0.18)]" onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
           <div className="absolute inset-0 bg-muted shimmer-loading" aria-hidden />
