@@ -24,6 +24,7 @@ const META: Record<string, { label: string; description: string; icon: typeof Im
   categories_showcase: { label: "Categories showcase", description: "Top-level category tiles", icon: FolderOpen },
   brands_showcase: { label: "Brands showcase", description: "Brand logo carousel", icon: Bookmark },
   brand_story: { label: "Brand story", description: "Narrative block with image", icon: BookOpen },
+  featured_image: { label: "Featured image", description: "Full-width promotional banner", icon: ImageIcon },
   newsletter: { label: "Newsletter", description: "Email capture section", icon: Mail },
   why_choose_us: { label: "Why choose us", description: "Value proposition cards", icon: Award },
   testimonials: { label: "Testimonials", description: "Customer reviews carousel", icon: MessageSquare },
