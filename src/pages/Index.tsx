@@ -484,27 +484,11 @@ const Index = () => {
           )}
 
           {hasLoadedHomepageData && isEnabled("testimonials") && testimonials.length > 0 && (
-            <section className="py-8 sm:py-10 lg:py-14 section-padding contain-content">
-              <FadeSection className="text-center mb-6 sm:mb-8">
-                <h2 className="text-lg sm:text-xl lg:text-2xl font-semibold tracking-tight text-foreground">{sectionContent("testimonials").section_title || "What Our Customers Say"}</h2>
-                {sectionContent("testimonials").subtitle && <p className="text-sm text-muted-foreground mt-2">{sectionContent("testimonials").subtitle}</p>}
-                <div className="premium-divider max-w-[60px] mx-auto mt-4" />
-              </FadeSection>
-              {(() => {
-                const items = testimonials.map(t => ({
-                  name: t.name,
-                  feedback: t.review,
-                  profileImage: t.image_url ?? undefined,
-                  mainImage: (t as any).main_image_url ?? t.image_url ?? undefined,
-                  rating: t.rating,
-                }));
-                return (
-                  <div className="mt-6">
-                    <ResponsiveMasonry items={items} />
-                  </div>
-                );
-              })()}
-            </section>
+            <TestimonialsSection
+              testimonials={fromDbTestimonials(testimonials)}
+              title={sectionContent("testimonials").section_title || "What our customers say"}
+              subtitle={sectionContent("testimonials").subtitle || "Real stories from people who carry AEROM every day."}
+            />
           )}
 
           {hasLoadedHomepageData && isEnabled("video_reels") && reels.length > 0 && (
