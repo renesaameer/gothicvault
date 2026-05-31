@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useState, useMemo, lazy, Suspense, forwardRef } from "react";
+import { useState, useEffect, useMemo, lazy, Suspense, forwardRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import ProductCard from "@/components/ProductCard";
@@ -18,7 +18,24 @@ import { useFadeIn, useStaggerIn } from "@/hooks/useMotion";
 import { subscribeToNewsletter } from "@/lib/newsletter";
 import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 import { attachImagesToProducts } from "@/lib/productMedia";
-import { TestimonialsColumn } from "@/components/ui/testimonials-columns-1";
+import { MasonryGrid, type MasonryTestimonial } from "@/components/ui/image-testimonial-grid";
+
+const ResponsiveMasonry = ({ items }: { items: MasonryTestimonial[] }) => {
+  const [cols, setCols] = useState(() => {
+    if (typeof window === "undefined") return 4;
+    const w = window.innerWidth;
+    return w < 640 ? 1 : w < 1024 ? 2 : w < 1280 ? 3 : 4;
+  });
+  useEffect(() => {
+    const onResize = () => {
+      const w = window.innerWidth;
+      setCols(w < 640 ? 1 : w < 1024 ? 2 : w < 1280 ? 3 : 4);
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+  return <MasonryGrid items={items} columns={cols} gap={5} />;
+};
 
 const LazyAccordion = lazy(() => import("@/components/ui/accordion").then(mod => ({
   default: forwardRef<HTMLDivElement, { faqs: HomeFaq[] }>(({ faqs }, ref) => (
@@ -428,13 +445,16 @@ const Index = () => {
                 <div className="premium-divider max-w-[60px] mx-auto mt-4" />
               </FadeSection>
               {(() => {
-                const items = testimonials.map(t => ({ text: t.review, image: t.image_url ?? undefined, name: t.name, role: (t as any).role ?? undefined }));
-                const cols = [items, items.slice().reverse(), items.slice(Math.floor(items.length / 2)).concat(items.slice(0, Math.floor(items.length / 2)))];
+                const items = testimonials.map(t => ({
+                  name: t.name,
+                  feedback: t.review,
+                  profileImage: t.image_url ?? undefined,
+                  mainImage: (t as any).main_image_url ?? t.image_url ?? undefined,
+                  rating: t.rating,
+                }));
                 return (
-                  <div className="flex justify-center gap-5 sm:gap-6 mt-6 [mask-image:linear-gradient(to_bottom,transparent,black_15%,black_85%,transparent)] max-h-[640px] overflow-hidden">
-                    <TestimonialsColumn testimonials={cols[0]} duration={18} />
-                    <TestimonialsColumn testimonials={cols[1]} duration={24} className="hidden md:block" />
-                    <TestimonialsColumn testimonials={cols[2]} duration={20} className="hidden lg:block" />
+                  <div className="mt-6">
+                    <ResponsiveMasonry items={items} />
                   </div>
                 );
               })()}

@@ -13,6 +13,7 @@ interface Testimonial {
   review: string;
   rating: number;
   image_url: string | null;
+  main_image_url: string | null;
   sort_order: number;
 }
 
@@ -24,24 +25,31 @@ const TestimonialsEditor = () => {
 
   const load = async () => {
     const { data } = await supabase.from("testimonials").select("*").order("sort_order");
-    setItems(data ?? []);
+    setItems((data as any) ?? []);
   };
 
   useEffect(() => { load(); }, []);
 
   const startNew = () => {
-    setEditing({ id: "", name: "", review: "", rating: 5, image_url: null, sort_order: items.length });
+    setEditing({ id: "", name: "", review: "", rating: 5, image_url: null, main_image_url: null, sort_order: items.length });
     setIsNew(true);
   };
 
   const handleSave = async () => {
     if (!editing || !editing.name.trim() || !editing.review.trim()) return;
-    const payload = { name: editing.name, review: editing.review, rating: editing.rating, image_url: editing.image_url, sort_order: editing.sort_order };
+    const payload = {
+      name: editing.name,
+      review: editing.review,
+      rating: editing.rating,
+      image_url: editing.image_url,
+      main_image_url: editing.main_image_url,
+      sort_order: editing.sort_order,
+    };
     if (isNew) {
-      const { error } = await supabase.from("testimonials").insert(payload);
+      const { error } = await supabase.from("testimonials").insert(payload as any);
       if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
     } else {
-      const { error } = await supabase.from("testimonials").update(payload).eq("id", editing.id);
+      const { error } = await supabase.from("testimonials").update(payload as any).eq("id", editing.id);
       if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
     }
     toast({ title: isNew ? "Testimonial added" : "Testimonial updated" });
@@ -59,9 +67,18 @@ const TestimonialsEditor = () => {
     <div className="space-y-3">
       {items.map((t) => (
         <div key={t.id} className="flex items-center justify-between bg-secondary/50 rounded-lg px-3 py-2">
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-foreground">{t.name} — ⭐ {t.rating}</p>
-            <p className="text-xs text-muted-foreground truncate">{t.review}</p>
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            {t.main_image_url ? (
+              <img src={t.main_image_url} alt={t.name} className="h-10 w-10 rounded-md object-cover border border-border/40" />
+            ) : t.image_url ? (
+              <img src={t.image_url} alt={t.name} className="h-10 w-10 rounded-full object-cover border border-border/40" />
+            ) : (
+              <div className="h-10 w-10 rounded-md bg-muted" />
+            )}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-foreground">{t.name} — ⭐ {t.rating}</p>
+              <p className="text-xs text-muted-foreground truncate">{t.review}</p>
+            </div>
           </div>
           <div className="flex gap-1 ml-2">
             <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditing({ ...t }); setIsNew(false); }}><Pencil size={13} /></Button>
@@ -71,7 +88,7 @@ const TestimonialsEditor = () => {
       ))}
 
       {editing && (
-        <div className="border border-border rounded-lg p-3 space-y-2">
+        <div className="border border-border rounded-lg p-3 space-y-3">
           <Input placeholder="Customer name" value={editing.name} onChange={(e) => setEditing({ ...editing, name: e.target.value })} />
           <Textarea placeholder="Review text" value={editing.review} onChange={(e) => setEditing({ ...editing, review: e.target.value })} rows={2} />
           <div className="grid grid-cols-2 gap-2">
@@ -82,8 +99,15 @@ const TestimonialsEditor = () => {
             value={editing.image_url ? [editing.image_url] : []}
             onChange={(urls) => setEditing({ ...editing, image_url: urls[0] || null })}
             multiple={false}
-            label="Customer Photo (optional)"
+            label="Profile Avatar (optional)"
             hint="Recommended: 200 × 200 px · Square · JPG or PNG"
+          />
+          <ImageUpload
+            value={editing.main_image_url ? [editing.main_image_url] : []}
+            onChange={(urls) => setEditing({ ...editing, main_image_url: urls[0] || null })}
+            multiple={false}
+            label="Showcase Image"
+            hint="Recommended: 800 × 1000 px · Portrait works best · Featured in the masonry grid"
           />
           <div className="flex gap-2">
             <Button size="sm" onClick={handleSave}><Save size={13} className="mr-1" /> Save</Button>
