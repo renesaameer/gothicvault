@@ -55,8 +55,11 @@ interface Brand { id: string; name: string; slug: string; logo_url: string | nul
 
 
 const FadeSection = forwardRef<HTMLDivElement, { children: React.ReactNode; className?: string }>(({ children, className = "" }, _ref) => {
-  const fade = useFadeIn();
-  return <div ref={fade.ref} className={`${fade.className} ${className}`}>{children}</div>;
+  return (
+    <ScrollScene variant="cinematic" intensity={0.85} className={className}>
+      {children}
+    </ScrollScene>
+  );
 });
 FadeSection.displayName = "FadeSection";
 
