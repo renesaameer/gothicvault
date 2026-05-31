@@ -14,21 +14,21 @@ interface ColumnProps {
   duration?: number;
 }
 
-const TestimonialsColumn = ({ className = "", testimonials, duration = 18 }: ColumnProps) => {
+const TestimonialsColumn = ({ className = "", testimonials, duration = 20 }: ColumnProps) => {
   if (!testimonials.length) return null;
   return (
-    <div className={className}>
+    <div className={`flex-1 min-w-0 max-w-xs ${className}`}>
       <motion.div
-        animate={{ translateY: "-50%" }}
-        transition={{ duration, repeat: Infinity, ease: "linear", repeatType: "loop" }}
-        className="flex flex-col gap-5 pb-5 bg-background"
+        animate={{ y: ["0%", "-50%"] }}
+        transition={{ duration, repeat: Infinity, ease: "linear" }}
+        className="flex flex-col gap-5"
       >
-        {[...Array(2)].map((_, dup) => (
-          <div key={dup} className="flex flex-col gap-5">
+        {[0, 1].map((dup) => (
+          <div key={dup} className="flex flex-col gap-5" aria-hidden={dup === 1}>
             {testimonials.map(({ text, image, name, role }, i) => (
               <div
                 key={`${dup}-${i}`}
-                className="p-6 sm:p-7 rounded-3xl glass-card max-w-xs w-full"
+                className="p-6 sm:p-7 rounded-3xl glass-card w-full"
               >
                 <p className="text-[13.5px] sm:text-sm text-foreground/85 leading-relaxed">
                   "{text}"
@@ -40,19 +40,19 @@ const TestimonialsColumn = ({ className = "", testimonials, duration = 18 }: Col
                       alt={name}
                       width={40}
                       height={40}
-                      className="h-10 w-10 rounded-full object-cover"
+                      className="h-10 w-10 rounded-full object-cover shrink-0"
                       loading="lazy"
                       decoding="async"
                     />
                   ) : (
-                    <div className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center text-[13px] font-semibold text-foreground">
+                    <div className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center text-[13px] font-semibold text-foreground shrink-0">
                       {name.charAt(0).toUpperCase()}
                     </div>
                   )}
-                  <div className="leading-tight">
-                    <div className="text-[13.5px] font-semibold tracking-tight text-foreground">{name}</div>
+                  <div className="leading-tight min-w-0">
+                    <div className="text-[13.5px] font-semibold tracking-tight text-foreground truncate">{name}</div>
                     {role && (
-                      <div className="text-[12px] text-muted-foreground mt-0.5">{role}</div>
+                      <div className="text-[12px] text-muted-foreground mt-0.5 truncate">{role}</div>
                     )}
                   </div>
                 </div>
