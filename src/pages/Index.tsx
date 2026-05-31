@@ -19,7 +19,7 @@ import { ScrollScene, DeepTilt } from "@/components/ui/scroll-scene";
 import { subscribeToNewsletter } from "@/lib/newsletter";
 import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 import { attachImagesToProducts } from "@/lib/productMedia";
-import { MasonryGrid, type MasonryTestimonial } from "@/components/ui/image-testimonial-grid";
+import TestimonialsSection, { fromDbTestimonials } from "@/components/ui/testimonial-v2";
 
 const ResponsiveMasonry = ({ items }: { items: MasonryTestimonial[] }) => {
   const [cols, setCols] = useState(() => {
