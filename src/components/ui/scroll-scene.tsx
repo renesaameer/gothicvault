@@ -98,28 +98,25 @@ interface ParallaxImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   speed?: number; // -1 to 1, default 0.3
   scale?: number; // default 1.15
 }
-export const ParallaxImage = React.forwardRef<HTMLImageElement, ParallaxImageProps>(
-  ({ speed = 0.3, scale = 1.15, className, style, ...rest }, ref) => {
-    const wrapRef = React.useRef<HTMLDivElement>(null);
-    const reduced = useReduced();
-    const { scrollYProgress } = useScroll({
-      target: wrapRef,
-      offset: ["start end", "end start"],
-    });
-    const y = useTransform(scrollYProgress, [0, 1], reduced ? ["0%", "0%"] : [`${-50 * speed}%`, `${50 * speed}%`]);
+export const ParallaxImage: React.FC<ParallaxImageProps> = ({ speed = 0.3, scale = 1.15, className, style, ...rest }) => {
+  const wrapRef = React.useRef<HTMLDivElement>(null);
+  const reduced = useReduced();
+  const { scrollYProgress } = useScroll({
+    target: wrapRef,
+    offset: ["start end", "end start"],
+  });
+  const y = useTransform(scrollYProgress, [0, 1], reduced ? ["0%", "0%"] : [`${-50 * speed}%`, `${50 * speed}%`]);
 
-    return (
-      <div ref={wrapRef} className="absolute inset-0 overflow-hidden">
-        <motion.img
-          ref={ref}
-          style={{ y, scale: reduced ? 1 : scale, ...style }}
-          className={cn("absolute inset-0 w-full h-full object-cover will-change-transform", className)}
-          {...rest}
-        />
-      </div>
-    );
-  }
-);
+  return (
+    <div ref={wrapRef} className="absolute inset-0 overflow-hidden">
+      <motion.img
+        style={{ y, scale: reduced ? 1 : scale, ...style }}
+        className={cn("absolute inset-0 w-full h-full object-cover will-change-transform", className)}
+        {...(rest as any)}
+      />
+    </div>
+  );
+};
 ParallaxImage.displayName = "ParallaxImage";
 
 /**
