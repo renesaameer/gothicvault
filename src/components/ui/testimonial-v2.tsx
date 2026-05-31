@@ -163,7 +163,7 @@ const TestimonialsSection = ({
           <div className="premium-divider max-w-[60px] mx-auto mt-4" />
         </motion.div>
 
-        <div className="flex justify-center gap-5 mt-10 [mask-image:linear-gradient(to_bottom,transparent,black_18%,black_82%,transparent)] max-h-[640px] sm:max-h-[720px] overflow-hidden">
+        <div className="flex justify-center gap-5 mt-10 px-2 [mask-image:linear-gradient(to_bottom,transparent,black_18%,black_82%,transparent)] max-h-[640px] sm:max-h-[720px] overflow-hidden">
           <TestimonialsColumn testimonials={firstColumn} duration={20} />
           <TestimonialsColumn testimonials={secondColumn} className="hidden md:block" duration={26} />
           <TestimonialsColumn testimonials={thirdColumn} className="hidden lg:block" duration={22} />
