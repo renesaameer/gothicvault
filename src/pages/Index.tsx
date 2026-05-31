@@ -421,9 +421,11 @@ const Index = () => {
                   )}
                 </FadeSection>
                 <FadeSection>
-                  <div className="aspect-[4/3] rounded-2xl overflow-hidden bg-secondary shadow-lg">
-                    <img src={brandStory.image || "/placeholder.svg"} alt="Our Story" className="w-full h-full object-cover" loading="lazy" decoding="async" width={600} height={450} />
-                  </div>
+                  <DeepTilt intensity={10}>
+                    <div className="aspect-[4/3] rounded-2xl overflow-hidden bg-secondary shadow-lg" style={{ transformStyle: "preserve-3d" }}>
+                      <img src={brandStory.image || "/placeholder.svg"} alt="Our Story" className="w-full h-full object-cover" loading="lazy" decoding="async" width={600} height={450} />
+                    </div>
+                  </DeepTilt>
                 </FadeSection>
               </div>
             </section>
