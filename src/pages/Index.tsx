@@ -253,8 +253,11 @@ const Index = () => {
       )}
 
       {hasLoadedHomepageData && featuredCategories.length > 0 && (
-        <FeaturedCategories categories={featuredCategories} categoryRefs={categories} />
+        <ScrollScene variant="cinematic" intensity={1.1}>
+          <FeaturedCategories categories={featuredCategories} categoryRefs={categories} />
+        </ScrollScene>
       )}
+
 
       {/* Reserve space for sections during initial load to prevent CLS jump */}
       {!hasLoadedHomepageData && (
