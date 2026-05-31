@@ -470,13 +470,16 @@ const Index = () => {
 
           {hasLoadedHomepageData && isEnabled("video_reels") && reels.length > 0 && (
             <Suspense fallback={null}>
-              <VideoReels
-                reels={reels}
-                sectionTitle={sectionContent("video_reels").section_title || "Real Customer Experiences"}
-                subtitle={sectionContent("video_reels").subtitle || "See how our community experiences the collection."}
-              />
+              <ScrollScene variant="cinematic" intensity={1.2}>
+                <VideoReels
+                  reels={reels}
+                  sectionTitle={sectionContent("video_reels").section_title || "Real Customer Experiences"}
+                  subtitle={sectionContent("video_reels").subtitle || "See how our community experiences the collection."}
+                />
+              </ScrollScene>
             </Suspense>
           )}
+
 
 
           {hasLoadedHomepageData && isEnabled("faq") && faqs.length > 0 && (
