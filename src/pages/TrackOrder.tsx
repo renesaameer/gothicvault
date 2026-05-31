@@ -10,6 +10,7 @@ import { useDelayedLoading } from "@/hooks/useDelayedLoading";
 import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 import { GlobePulse } from "@/components/ui/cobe-globe-pulse";
 import { BeamsBackground } from "@/components/ui/beams-background";
+import { OrderTrackingParallaxCard } from "@/components/ui/order-tracking-parallax-card";
 
 const statusSteps = ["pending", "confirmed", "processing", "shipped", "delivered"];
 const statusLabels: Record<string, string> = { pending: "Pending", confirmed: "Confirmed", processing: "Processing", shipped: "Shipped", delivered: "Delivered" };
@@ -270,43 +271,25 @@ const TrackOrder = () => {
                 </button>
               )}
 
-              {/* Status timeline */}
-              <div className="glass-card rounded-[28px] p-6 sm:p-7 relative overflow-hidden">
-                <div aria-hidden className="pointer-events-none absolute inset-0 rounded-[28px] ring-1 ring-inset ring-white/[0.04]" />
-                <div className="flex items-center justify-between mb-1">
-                  <h2 className="text-[10px] uppercase tracking-[0.42em] text-muted-foreground font-display">Journey</h2>
-                  <span className="text-[10px] uppercase tracking-[0.3em] text-primary/80">#{order.order_number}</span>
-                </div>
-                <div className="premium-divider mb-7" />
-                <div className="flex items-center justify-between relative px-1">
-                  <div className="absolute top-[22px] left-0 right-0 h-px bg-border/40" />
-                  <div
-                    className="absolute top-[22px] left-0 h-px bg-gradient-to-r from-primary/40 via-primary to-primary/80 transition-all duration-700 shadow-[0_0_12px_hsl(var(--primary)/0.6)]"
-                    style={{ width: `${Math.max(0, currentStep) / (statusSteps.length - 1) * 100}%` }}
-                  />
-                  {statusSteps.map((step, i) => {
-                    const Icon = statusIcons[step];
-                    const isActive = i <= currentStep;
-                    const isCurrent = i === currentStep;
-                    return (
-                      <div key={step} className="relative flex flex-col items-center z-10">
-                        <div
-                          className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-500 ${
-                            isActive
-                              ? "bg-gradient-to-b from-primary/90 to-primary text-primary-foreground shadow-[0_4px_20px_-4px_hsl(var(--primary)/0.6)]"
-                              : "bg-secondary/60 text-muted-foreground/60 border border-border/40"
-                          } ${isCurrent ? "ring-[3px] ring-primary/25 scale-110" : ""}`}
-                        >
-                          <Icon size={16} />
-                        </div>
-                        <span className={`text-[10px] mt-2 uppercase tracking-[0.18em] ${isActive ? "text-foreground" : "text-muted-foreground/60"}`}>
-                          {statusLabels[step] || step}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+              {/* Parallax 3D status card */}
+              <OrderTrackingParallaxCard
+                orderId={order.order_number}
+                product={
+                  (order.items && order.items[0]?.name)
+                    ? `${order.items[0].name}${order.items.length > 1 ? ` + ${toBanglaDigits(order.items.length - 1)} more` : ""}`
+                    : "Your Order"
+                }
+                status={order.order_status as any}
+                eta={
+                  order.order_status === "delivered"
+                    ? "Delivered"
+                    : order.order_status === "shipped"
+                      ? "1–2 days"
+                      : "2–4 days"
+                }
+                total={`${CURRENCY_SYMBOL}${toBanglaDigits(Number(order.total).toFixed(0))}`}
+              />
+
 
               {/* Details */}
               <div className="grid sm:grid-cols-2 gap-4">
