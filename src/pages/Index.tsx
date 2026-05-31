@@ -388,16 +388,18 @@ const Index = () => {
               </FadeSection>
               <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
                 {brands.map((brand) => (
-                  <Link key={brand.id} to={`/shop?brand=${encodeURIComponent(brand.name)}`} className="group flex flex-col items-center justify-center glass-card rounded-xl aspect-square hover:border-primary/25 hover:-translate-y-1 hover:shadow-[0_6px_24px_-8px_hsl(var(--primary)/0.12)] transition-all duration-300 p-3 sm:p-4">
-                    <div className="flex-1 w-full flex items-center justify-center">
+                  <DeepTilt key={brand.id} intensity={14}>
+                  <Link to={`/shop?brand=${encodeURIComponent(brand.name)}`} className="group flex flex-col items-center justify-center glass-card rounded-xl aspect-square hover:border-primary/25 hover:-translate-y-1 hover:shadow-[0_6px_24px_-8px_hsl(var(--primary)/0.12)] transition-all duration-300 p-3 sm:p-4" style={{ transformStyle: "preserve-3d" }}>
+                    <div className="flex-1 w-full flex items-center justify-center" style={{ transform: "translateZ(30px)" }}>
                       {brand.logo_url ? (
                         <img src={brand.logo_url} alt={brand.name} className="max-h-[50%] w-auto max-w-[80%] object-contain transition-transform duration-300 group-hover:scale-105" loading="lazy" decoding="async" width={80} height={80} />
                       ) : (
                         <span className="text-sm font-semibold text-foreground tracking-tight">{brand.name}</span>
                       )}
                     </div>
-                    <span className="text-[10px] sm:text-[11px] text-muted-foreground font-medium mt-1">{brand.name}</span>
+                    <span className="text-[10px] sm:text-[11px] text-muted-foreground font-medium mt-1" style={{ transform: "translateZ(18px)" }}>{brand.name}</span>
                   </Link>
+                  </DeepTilt>
                 ))}
               </div>
             </section>
