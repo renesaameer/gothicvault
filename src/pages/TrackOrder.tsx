@@ -99,15 +99,8 @@ const TrackOrder = () => {
 
   return (
     <div className="section-padding py-12 sm:py-16 page-enter relative overflow-hidden">
-      {/* Ambient lavender glow backdrop */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10"
-        style={{
-          background:
-            "radial-gradient(60% 50% at 50% 0%, rgba(180,150,230,0.10), transparent 70%)",
-        }}
-      />
+      {/* Gothic animated beams backdrop */}
+      <BeamsBackground intensity="subtle" className="-z-10" />
       <div className="fade-up">
         <div className="max-w-2xl mx-auto">
           <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground mb-2 text-center sm:text-left">Track your order</h1>
