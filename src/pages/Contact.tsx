@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { ScrollScene } from "@/components/ui/scroll-scene";
 import { MailIcon, PhoneIcon, MapPinIcon, SendIcon, ExternalLinkIcon } from "@/components/ui/icons";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -107,15 +108,15 @@ const Contact = () => {
 
   return (
     <div className="page-enter">
-      <section className="section-padding py-10 sm:py-12 lg:py-14 text-center section-alt">
+      <ScrollScene variant="cinematic" intensity={0.8}><section className="section-padding py-10 sm:py-12 lg:py-14 text-center section-alt">
         <div className="fade-up max-w-3xl mx-auto">
           <h1 className="apple-heading-lg text-foreground mb-2">{resolvedSettings.page_title || "Get in Touch"}</h1>
           <p className="apple-body mb-3">{resolvedSettings.page_intro || ""}</p>
           <div className="premium-divider max-w-[60px] mx-auto" />
         </div>
-      </section>
+      </section></ScrollScene>
 
-      <section className="section-padding py-8 sm:py-10 lg:py-12">
+      <ScrollScene variant="cinematic" intensity={0.8}><section className="section-padding py-8 sm:py-10 lg:py-12">
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {resolvedSettings.phone_number && (
             <div className="fade-up glass-card rounded-xl p-4 sm:p-5 hover:-translate-y-0.5 transition-transform duration-150">
@@ -139,9 +140,9 @@ const Contact = () => {
             </div>
           )}
         </div>
-      </section>
+      </section></ScrollScene>
 
-      <section className="section-padding pb-10 lg:pb-14">
+      <ScrollScene variant="cinematic" intensity={0.8}><section className="section-padding pb-10 lg:pb-14">
         <div className="grid lg:grid-cols-2 gap-6 lg:gap-10 max-w-6xl mx-auto">
           <div className="fade-up glass-card rounded-2xl p-5 sm:p-6">
             <h2 className="apple-heading-sm text-foreground mb-1">Send us a message</h2>
@@ -197,7 +198,7 @@ const Contact = () => {
             })()}
           </div>
         </div>
-      </section>
+      </section></ScrollScene>
     </div>
   );
 };

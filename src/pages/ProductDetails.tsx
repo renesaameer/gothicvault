@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { ScrollScene } from "@/components/ui/scroll-scene";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { trackViewContent, trackAddToCart } from "@/lib/trackingEvents";
@@ -726,6 +727,7 @@ const ProductDetails = () => {
 
         {/* Why Choose Us — toggle via shop_settings.pdp_show_why_choose_us */}
         {showWhyChooseUs && whyCards.length > 0 && (
+          <ScrollScene variant="cinematic" intensity={0.85}>
           <section className="section-padding pb-8 sm:pb-12">
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
@@ -740,10 +742,12 @@ const ProductDetails = () => {
               ))}
             </div>
           </section>
+          </ScrollScene>
         )}
 
         {/* FAQs — card style */}
         {faqs.length > 0 && (
+          <ScrollScene variant="rise" intensity={0.8}>
           <div className="section-padding pb-8 sm:pb-12">
             <h2 className="text-sm sm:text-base font-semibold text-foreground mb-4">Product Q&A</h2>
             <Accordion type="single" collapsible className="space-y-2 max-w-3xl">
@@ -759,10 +763,12 @@ const ProductDetails = () => {
               ))}
             </Accordion>
           </div>
+          </ScrollScene>
         )}
 
         {/* Reviews — card style */}
         {reviews.length > 0 && (
+          <ScrollScene variant="rise" intensity={0.8}>
           <div className="section-padding pb-8 sm:pb-12">
             <div className="flex items-center justify-between mb-4 max-w-3xl">
               <h2 className="text-sm sm:text-base font-semibold text-foreground">Reviews ({toBanglaDigits(reviews.length)})</h2>
@@ -785,10 +791,12 @@ const ProductDetails = () => {
               ))}
             </div>
           </div>
+          </ScrollScene>
         )}
 
         {/* Related products */}
         {related.length > 0 && (
+          <ScrollScene variant="cinematic" intensity={1}>
           <div className="section-padding py-10 sm:py-14">
             <div className="premium-divider mb-6" />
             <h2 className="text-sm sm:text-base font-semibold text-foreground mb-5">You may also like</h2>
@@ -796,6 +804,7 @@ const ProductDetails = () => {
               {related.map((p) => <ProductCard key={p.id} product={p} categoryName={categoryName} />)}
             </div>
           </div>
+          </ScrollScene>
         )}
       </div>
 

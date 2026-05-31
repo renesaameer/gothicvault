@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { ScrollScene } from "@/components/ui/scroll-scene";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import DynamicIcon from "@/components/ui/DynamicIcon";
@@ -41,17 +42,17 @@ const About = () => {
   return (
     <div className="page-enter">
       {isEnabled("header") && (
-        <section className="section-padding py-20 sm:py-28 text-center">
+        <ScrollScene variant="cinematic" intensity={0.8}><section className="section-padding py-20 sm:py-28 text-center">
           <div className="fade-up">
             <h1 className="apple-heading-lg text-foreground mb-3">{header.title || "About Us"}</h1>
             <p className="apple-body max-w-2xl mx-auto mb-4">{header.intro || ""}</p>
             <div className="premium-divider max-w-[60px] mx-auto" />
           </div>
-        </section>
+        </section></ScrollScene>
       )}
 
       {isEnabled("story") && (
-        <section className="section-padding pb-20 lg:pb-28">
+        <ScrollScene variant="cinematic" intensity={0.8}><section className="section-padding pb-20 lg:pb-28">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             <div className="fade-up">
               <div className="aspect-[3/2] rounded-2xl overflow-hidden bg-secondary shadow-lg border border-border/20">
@@ -64,11 +65,11 @@ const About = () => {
               <div className="apple-body whitespace-pre-line">{story.text || ""}</div>
             </div>
           </div>
-        </section>
+        </section></ScrollScene>
       )}
 
       {isEnabled("mission_vision") && (mv.mission || mv.vision) && (
-        <section className="section-padding section-spacing section-alt">
+        <ScrollScene variant="cinematic" intensity={0.8}><section className="section-padding section-spacing section-alt">
           <div className="grid md:grid-cols-2 gap-10 max-w-4xl mx-auto">
             {mv.mission && (
               <div className="fade-up glass-card rounded-2xl p-6 sm:p-8">
@@ -85,11 +86,11 @@ const About = () => {
               </div>
             )}
           </div>
-        </section>
+        </section></ScrollScene>
       )}
 
       {isEnabled("founder") && (founder.message || founder.image) && (
-        <section className="section-padding section-spacing">
+        <ScrollScene variant="cinematic" intensity={0.8}><section className="section-padding section-spacing">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             <div className="fade-up lg:order-2">
               <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-secondary max-w-md mx-auto shadow-lg border border-border/20">
@@ -102,11 +103,11 @@ const About = () => {
               <p className="apple-body whitespace-pre-line">{founder.message}</p>
             </div>
           </div>
-        </section>
+        </section></ScrollScene>
       )}
 
       {isEnabled("values") && valuesCards.length > 0 && (
-        <section className="section-padding section-spacing section-alt">
+        <ScrollScene variant="cinematic" intensity={0.8}><section className="section-padding section-spacing section-alt">
           <div className="fade-up text-center mb-10">
             <h2 className="apple-heading-lg text-foreground mb-4">Our Values</h2>
             <div className="premium-divider max-w-[60px] mx-auto" />
@@ -124,18 +125,18 @@ const About = () => {
               ))}
             </div>
           </div>
-        </section>
+        </section></ScrollScene>
       )}
 
       {isEnabled("cta") && (
-        <section className="section-padding section-spacing text-center">
+        <ScrollScene variant="cinematic" intensity={0.8}><section className="section-padding section-spacing text-center">
           <div className="fade-up">
             <h2 className="apple-heading-md text-foreground mb-6">{cta.text || "Find your perfect piece"}</h2>
             <Link to={cta.button_link || "/shop"} className="inline-flex items-center justify-center bg-primary text-primary-foreground px-10 py-4 rounded-full text-sm font-semibold hover:bg-primary/90 active:scale-[0.97] transition-all duration-150 shadow-[0_4px_20px_-6px_hsl(var(--primary)/0.4)]">
               {cta.button_text || "Shop now"}
             </Link>
           </div>
-        </section>
+        </section></ScrollScene>
       )}
     </div>
   );

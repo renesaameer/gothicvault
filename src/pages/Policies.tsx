@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { ScrollScene } from "@/components/ui/scroll-scene";
 import { useSearchParams, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -59,15 +60,15 @@ const Policies = () => {
 
   return (
     <div className="page-enter">
-      <section className="section-padding py-20 sm:py-28 text-center">
+      <ScrollScene variant="cinematic" intensity={0.8}><section className="section-padding py-20 sm:py-28 text-center">
         <div className="fade-up">
           <h1 className="apple-heading-lg text-foreground mb-3">Our Policies</h1>
           <p className="apple-body max-w-2xl mx-auto mb-4">Transparency and trust are at the heart of everything we do.</p>
           <div className="premium-divider max-w-[60px] mx-auto" />
         </div>
-      </section>
+      </section></ScrollScene>
 
-      <section className="section-padding pb-20 lg:pb-28 max-w-4xl mx-auto text-center">
+      <ScrollScene variant="cinematic" intensity={0.8}><section className="section-padding pb-20 lg:pb-28 max-w-4xl mx-auto text-center">
         {!!policies?.length && (
           <div className="flex flex-wrap justify-center gap-2 mb-10">
             {policies.map((p) => (
@@ -126,7 +127,7 @@ const Policies = () => {
             <p className="apple-body-sm text-muted-foreground">No policies found.</p>
           </div>
         )}
-      </section>
+      </section></ScrollScene>
     </div>
   );
 };
