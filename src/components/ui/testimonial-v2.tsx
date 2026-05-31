@@ -60,12 +60,12 @@ const TestimonialsColumn = ({ className = "", testimonials, duration = 20 }: Col
   const groups = useMemo(() => Array.from({ length: duplicateCount }, (_, index) => index), [duplicateCount]);
 
   return (
-    <div ref={viewportRef} className={`flex-1 min-w-0 max-w-xs overflow-hidden ${className}`}>
+    <div ref={viewportRef} className={`flex-1 min-w-0 max-w-xs overflow-hidden px-2 -mx-2 ${className}`}>
       <motion.div
         key={`${duration}-${loopOffset}-${duplicateCount}`}
         animate={!shouldReduceMotion && loopOffset > 0 ? { y: -loopOffset } : { y: 0 }}
         transition={!shouldReduceMotion && loopOffset > 0 ? { duration, repeat: Infinity, ease: "linear" } : undefined}
-        className="flex flex-col gap-5 will-change-transform"
+        className="flex flex-col gap-5 will-change-transform py-2"
       >
         {groups.map((dup) => (
           <div
