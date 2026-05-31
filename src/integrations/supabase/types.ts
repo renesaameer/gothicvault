@@ -727,31 +727,25 @@ export type Database = {
       }
       homepage_sections: {
         Row: {
-          content: Json | null
-          created_at: string | null
+          content: Json
           enabled: boolean
           id: string
           sort_order: number
-          title: string | null
-          updated_at: string | null
+          updated_at: string
         }
         Insert: {
-          content?: Json | null
-          created_at?: string | null
+          content?: Json
           enabled?: boolean
           id: string
           sort_order?: number
-          title?: string | null
-          updated_at?: string | null
+          updated_at?: string
         }
         Update: {
-          content?: Json | null
-          created_at?: string | null
+          content?: Json
           enabled?: boolean
           id?: string
           sort_order?: number
-          title?: string | null
-          updated_at?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
