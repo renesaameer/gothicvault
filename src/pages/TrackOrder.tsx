@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useDelayedLoading } from "@/hooks/useDelayedLoading";
 import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 import { GlobePulse } from "@/components/ui/cobe-globe-pulse";
+import { BeamsBackground } from "@/components/ui/beams-background";
 
 const statusSteps = ["pending", "confirmed", "processing", "shipped", "delivered"];
 const statusLabels: Record<string, string> = { pending: "Pending", confirmed: "Confirmed", processing: "Processing", shipped: "Shipped", delivered: "Delivered" };
