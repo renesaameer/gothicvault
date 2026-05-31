@@ -102,7 +102,7 @@ const TrackOrder = () => {
         }}
       />
 
-      <div className="section-padding pt-16 sm:pt-20 pb-20 sm:pb-28">
+      <div className="section-padding pt-12 sm:pt-16 pb-10 sm:pb-14">
         <div className="max-w-3xl mx-auto">
           {/* Eyebrow crest */}
           <div className="fade-up flex items-center justify-center gap-3 mb-5">
