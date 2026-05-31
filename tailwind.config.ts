@@ -18,8 +18,8 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
-        display: ['"Playfair Display"', 'Georgia', 'serif'],
-        serif: ['"Playfair Display"', 'Georgia', 'serif'],
+        display: ['Cinzel', '"Cormorant Garamond"', 'Georgia', 'serif'],
+        serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
       },
       colors: {
         border: "hsl(var(--border))",
