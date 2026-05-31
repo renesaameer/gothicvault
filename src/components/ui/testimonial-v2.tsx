@@ -1,4 +1,5 @@
-import { motion } from "motion/react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { motion, useReducedMotion } from "motion/react";
 import type { Testimonial as DbTestimonial } from "@/types/database";
 
 export interface TestimonialItem {
@@ -15,16 +16,64 @@ interface ColumnProps {
 }
 
 const TestimonialsColumn = ({ className = "", testimonials, duration = 20 }: ColumnProps) => {
+  const shouldReduceMotion = useReducedMotion();
+  const viewportRef = useRef<HTMLDivElement | null>(null);
+  const groupRef = useRef<HTMLDivElement | null>(null);
+  const [groupHeight, setGroupHeight] = useState(0);
+  const [viewportHeight, setViewportHeight] = useState(0);
+
   if (!testimonials.length) return null;
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const measure = () => {
+      setGroupHeight(groupRef.current?.getBoundingClientRect().height ?? 0);
+      setViewportHeight(viewportRef.current?.clientHeight ?? 0);
+    };
+
+    measure();
+
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", measure);
+      return () => window.removeEventListener("resize", measure);
+    }
+
+    const observer = new ResizeObserver(measure);
+    if (viewportRef.current) observer.observe(viewportRef.current);
+    if (groupRef.current) observer.observe(groupRef.current);
+    window.addEventListener("resize", measure);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, [testimonials]);
+
+  const columnGap = 20;
+  const loopOffset = groupHeight > 0 ? groupHeight + columnGap : 0;
+  const duplicateCount = shouldReduceMotion
+    ? 1
+    : loopOffset > 0
+      ? Math.max(4, Math.ceil(viewportHeight / loopOffset) + 2)
+      : 4;
+  const groups = useMemo(() => Array.from({ length: duplicateCount }, (_, index) => index), [duplicateCount]);
+
   return (
-    <div className={`flex-1 min-w-0 max-w-xs ${className}`}>
+    <div ref={viewportRef} className={`flex-1 min-w-0 max-w-xs overflow-hidden ${className}`}>
       <motion.div
-        animate={{ y: ["0%", "-33.3333%"] }}
-        transition={{ duration, repeat: Infinity, ease: "linear" }}
-        className="flex flex-col gap-5"
+        key={`${duration}-${loopOffset}-${duplicateCount}`}
+        animate={!shouldReduceMotion && loopOffset > 0 ? { y: -loopOffset } : { y: 0 }}
+        transition={!shouldReduceMotion && loopOffset > 0 ? { duration, repeat: Infinity, ease: "linear" } : undefined}
+        className="flex flex-col gap-5 will-change-transform"
       >
-        {[0, 1, 2].map((dup) => (
-          <div key={dup} className="flex flex-col gap-5" aria-hidden={dup === 1}>
+        {groups.map((dup) => (
+          <div
+            key={dup}
+            ref={dup === 0 ? groupRef : undefined}
+            className="flex flex-col gap-5"
+            aria-hidden={dup > 0}
+          >
             {testimonials.map(({ text, image, name, role }, i) => (
               <div
                 key={`${dup}-${i}`}
