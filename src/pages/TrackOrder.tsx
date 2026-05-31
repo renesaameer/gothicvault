@@ -97,12 +97,39 @@ const TrackOrder = () => {
   const currentStep = order ? statusSteps.indexOf(order.order_status) : -1;
 
   return (
-    <div className="section-padding py-12 sm:py-16 page-enter">
+    <div className="section-padding py-12 sm:py-16 page-enter relative overflow-hidden">
+      {/* Ambient lavender glow backdrop */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10"
+        style={{
+          background:
+            "radial-gradient(60% 50% at 50% 0%, rgba(180,150,230,0.10), transparent 70%)",
+        }}
+      />
       <div className="fade-up">
         <div className="max-w-2xl mx-auto">
-          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground mb-2">Track your order</h1>
-          <p className="text-sm text-muted-foreground mb-3">Enter your order number or phone to see status.</p>
-          <div className="premium-divider max-w-[40px] mb-6" />
+          {/* Premium gothic globe hero */}
+          <div className="relative mx-auto mb-8 w-full max-w-[340px] sm:max-w-[420px]">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0 -z-10 rounded-full blur-3xl"
+              style={{
+                background:
+                  "radial-gradient(circle, rgba(180,150,230,0.28), transparent 65%)",
+              }}
+            />
+            <GlobePulse />
+            <div className="mt-3 flex items-center justify-center gap-3 text-[10px] uppercase tracking-[0.32em] text-muted-foreground">
+              <span className="h-px w-10 bg-gradient-to-r from-transparent via-border to-transparent" />
+              <span className="font-display">Live Vault Network</span>
+              <span className="h-px w-10 bg-gradient-to-r from-transparent via-border to-transparent" />
+            </div>
+          </div>
+
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground mb-2 text-center sm:text-left">Track your order</h1>
+          <p className="text-sm text-muted-foreground mb-3 text-center sm:text-left">Enter your order number or phone to see status.</p>
+          <div className="premium-divider max-w-[40px] mb-6 mx-auto sm:mx-0" />
 
           <div className="flex gap-2 mb-4">
             <button
