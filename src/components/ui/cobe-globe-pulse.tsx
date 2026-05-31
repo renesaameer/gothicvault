@@ -151,34 +151,8 @@ export function GlobePulse({
           touchAction: "none",
         }}
       />
-      {/* Decorative pulse dots positioned at center as ambient accents */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 flex items-center justify-center"
-      >
-        <span
-          className="absolute h-3 w-3 rounded-full"
-          style={{
-            background: "rgba(200, 180, 235, 0.85)",
-            boxShadow:
-              "0 0 0 3px rgba(10,8,14,0.9), 0 0 24px rgba(180,150,230,0.6)",
-          }}
-        />
-        <span
-          className="absolute h-10 w-10 rounded-full border"
-          style={{
-            borderColor: "rgba(200, 180, 235, 0.55)",
-            animation: "gothic-pulse-expand 2.4s ease-out infinite",
-          }}
-        />
-        <span
-          className="absolute h-10 w-10 rounded-full border"
-          style={{
-            borderColor: "rgba(200, 180, 235, 0.55)",
-            animation: "gothic-pulse-expand 2.4s ease-out infinite 1.2s",
-          }}
-        />
-      </div>
+
+
     </div>
   );
 }
