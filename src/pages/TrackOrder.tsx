@@ -358,7 +358,7 @@ const TrackOrder = () => {
 
 
                 {/* Ledger + Manifest combined */}
-                <div className="p-6 sm:p-8 grid sm:grid-cols-2 gap-x-8 gap-y-2">
+                <div className="p-5 sm:p-8 grid sm:grid-cols-2 gap-x-8 gap-y-2">
                   <div className="space-y-2.5">
                     <h3 className="text-[10px] uppercase tracking-[0.42em] text-muted-foreground font-display mb-2">Ledger</h3>
                     <Row label="Subtotal" value={`${CURRENCY_SYMBOL}${toBanglaDigits(Number(order.subtotal).toFixed(0))}`} />
