@@ -10,7 +10,7 @@ import { useDelayedLoading } from "@/hooks/useDelayedLoading";
 import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 import { GlobePulse } from "@/components/ui/cobe-globe-pulse";
 import { BeamsBackground } from "@/components/ui/beams-background";
-import { OrderTrackingParallaxCard } from "@/components/ui/order-tracking-parallax-card";
+
 
 const statusSteps = ["pending", "confirmed", "processing", "shipped", "delivered"];
 const statusLabels: Record<string, string> = { pending: "Pending", confirmed: "Confirmed", processing: "Processing", shipped: "Shipped", delivered: "Delivered" };
