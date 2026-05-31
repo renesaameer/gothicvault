@@ -18,7 +18,24 @@ import { useFadeIn, useStaggerIn } from "@/hooks/useMotion";
 import { subscribeToNewsletter } from "@/lib/newsletter";
 import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 import { attachImagesToProducts } from "@/lib/productMedia";
-import { MasonryGrid } from "@/components/ui/image-testimonial-grid";
+import { MasonryGrid, type MasonryTestimonial } from "@/components/ui/image-testimonial-grid";
+
+const ResponsiveMasonry = ({ items }: { items: MasonryTestimonial[] }) => {
+  const [cols, setCols] = useState(() => {
+    if (typeof window === "undefined") return 4;
+    const w = window.innerWidth;
+    return w < 640 ? 1 : w < 1024 ? 2 : w < 1280 ? 3 : 4;
+  });
+  useEffect(() => {
+    const onResize = () => {
+      const w = window.innerWidth;
+      setCols(w < 640 ? 1 : w < 1024 ? 2 : w < 1280 ? 3 : 4);
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+  return <MasonryGrid items={items} columns={cols} gap={5} />;
+};
 
 const LazyAccordion = lazy(() => import("@/components/ui/accordion").then(mod => ({
   default: forwardRef<HTMLDivElement, { faqs: HomeFaq[] }>(({ faqs }, ref) => (
@@ -435,13 +452,9 @@ const Index = () => {
                   mainImage: (t as any).main_image_url ?? t.image_url ?? undefined,
                   rating: t.rating,
                 }));
-                const useCols =
-                  typeof window !== "undefined"
-                    ? window.innerWidth < 640 ? 1 : window.innerWidth < 1024 ? 2 : window.innerWidth < 1280 ? 3 : 4
-                    : 4;
                 return (
                   <div className="mt-6">
-                    <MasonryGrid items={items} columns={useCols} gap={5} />
+                    <ResponsiveMasonry items={items} />
                   </div>
                 );
               })()}
