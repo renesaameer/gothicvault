@@ -361,17 +361,19 @@ const Index = () => {
               </FadeSection>
               <div ref={catGrid.ref} className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5 ${catGrid.className}`}>
                 {showcaseCategories.map((cat) => (
-                  <Link key={cat.id} to={`/shop?category=${encodeURIComponent(cat.name)}`} className="group relative aspect-[4/3] rounded-2xl overflow-hidden bg-secondary shadow-sm">
+                  <DeepTilt key={cat.id} intensity={12}>
+                  <Link to={`/shop?category=${encodeURIComponent(cat.name)}`} className="group relative block aspect-[4/3] rounded-2xl overflow-hidden bg-secondary shadow-sm" style={{ transformStyle: "preserve-3d" }}>
                     {cat.image_url ? (
                       <img src={cat.image_url} alt={cat.name} className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" loading="lazy" decoding="async" width={400} height={300} />
                     ) : (
                       <div className="w-full h-full bg-gradient-to-br from-foreground/5 to-foreground/10" />
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/15 to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <div className="absolute bottom-0 left-0 right-0 p-4" style={{ transform: "translateZ(36px)" }}>
                       <h3 className="text-sm sm:text-base font-semibold text-white drop-shadow-sm">{cat.name}</h3>
                     </div>
                   </Link>
+                  </DeepTilt>
                 ))}
               </div>
             </section>
