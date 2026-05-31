@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import logo from "@/assets/maverickmist-logo.png";
+import logo from "@/assets/gothic-vault-logo.png";
 
 interface BrandMarkProps {
   className?: string;
@@ -8,22 +8,23 @@ interface BrandMarkProps {
 }
 
 const sizeMap = {
-  sm: "h-7",
-  md: "h-9",
-  lg: "h-12",
-  xl: "h-16",
+  sm: "h-8",
+  md: "h-10",
+  lg: "h-14",
+  xl: "h-20",
 };
 
 /**
- * MaverickMist brand mark — feminine luxury perfume wordmark logo.
+ * Gothic Vault brand mark — dark luxury gothic accessories emblem.
  */
 const BrandMark = ({ className, size = "md", invert = false }: BrandMarkProps) => (
   <img
     src={logo}
-    alt="MaverickMist — Fragrance That You Love"
+    alt="Gothic Vault — Goth Accessories"
     className={cn(
       "w-auto select-none object-contain",
       sizeMap[size],
+      "drop-shadow-[0_0_18px_rgba(180,150,230,0.35)]",
       invert && "brightness-0 invert",
       className,
     )}
