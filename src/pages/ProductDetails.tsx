@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { ScrollScene } from "@/components/ui/scroll-scene";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { trackViewContent, trackAddToCart } from "@/lib/trackingEvents";
