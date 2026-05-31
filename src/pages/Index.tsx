@@ -293,21 +293,23 @@ const Index = () => {
               <FadeSection>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {activeOffers.map((offer) => (
-                    <Link key={offer.id} to="/shop" className="group relative overflow-hidden glass-card rounded-xl p-4 sm:p-5 hover:border-primary/30 transition-all duration-300 hover:-translate-y-0.5 trust-badge">
-                      <div className="flex items-center gap-2.5 mb-2">
+                    <DeepTilt key={offer.id} intensity={12}>
+                    <Link to="/shop" className="group relative overflow-hidden glass-card rounded-xl p-4 sm:p-5 hover:border-primary/30 transition-all duration-300 hover:-translate-y-0.5 trust-badge block h-full" style={{ transformStyle: "preserve-3d" }}>
+                      <div className="flex items-center gap-2.5 mb-2" style={{ transform: "translateZ(30px)" }}>
                         <span className="inline-flex items-center gap-1 bg-foreground text-background text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm">
                           <GiftIcon size={11} />
                           {toBanglaDigits(offer.discount_value)}{offer.discount_type === "percentage" ? "%" : ` ${CURRENCY_SYMBOL}`} off
                         </span>
                       </div>
-                      <h3 className="text-base font-semibold text-foreground">{offer.name}</h3>
+                      <h3 className="text-base font-semibold text-foreground" style={{ transform: "translateZ(24px)" }}>{offer.name}</h3>
                       <p className="text-xs text-muted-foreground mt-1">
                         {offer.apply_to === "entire_store" ? "On all products" : `On selected products`}
                       </p>
-                      <span className="inline-flex items-center gap-1 text-xs font-medium text-primary mt-3 group-hover:gap-2 transition-all">
+                      <span className="inline-flex items-center gap-1 text-xs font-medium text-primary mt-3 group-hover:gap-2 transition-all" style={{ transform: "translateZ(20px)" }}>
                         Shop now <ArrowRightIcon size={12} />
                       </span>
                     </Link>
+                    </DeepTilt>
                   ))}
                 </div>
               </FadeSection>
