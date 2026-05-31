@@ -121,11 +121,12 @@ const Shop = () => {
 
   return (
     <div className="section-padding pt-6 sm:pt-10 lg:pt-14 pb-16 sm:pb-24 lg:pb-[120px] page-enter">
-      <div className="fade-up">
+      <ScrollScene variant="rise" intensity={0.9}>
         <h1 className="apple-heading-lg text-foreground text-center mb-2">Shop</h1>
         <p className="apple-body text-center mb-3">Browse our full collection.</p>
         <div className="premium-divider max-w-[60px] mx-auto mb-6 sm:mb-8" />
-      </div>
+      </ScrollScene>
+
 
       {activeOffers.length > 0 && (
         <div className="flex flex-wrap gap-2 justify-center mb-6 sm:mb-8">
