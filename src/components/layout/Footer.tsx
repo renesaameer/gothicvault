@@ -36,7 +36,7 @@ const FooterColumn = ({ title, links }: { title: string; links: { label: string;
   if (!links?.length) return null;
   return (
     <div>
-      <h3 className="text-[11px] font-medium tracking-[0.28em] uppercase text-foreground/70 mb-5">{title}</h3>
+      <h3 className="font-display text-[11px] font-semibold tracking-[0.32em] uppercase text-foreground/80 mb-5 [text-shadow:0_0_10px_rgba(200,180,235,0.25)]">{title}</h3>
       <ul className="space-y-3">
         {links.map((l, i) => (
           <li key={i}>
@@ -84,13 +84,24 @@ const Footer = () => {
 
   return (
     <footer className="relative bg-background text-foreground">
-      <div className="section-padding pt-10 sm:pt-14 lg:pt-20 pb-6 sm:pb-10">
+      {/* Chain + crystal top separator */}
+      <div aria-hidden className="relative flex items-center justify-center pt-10 sm:pt-14 lg:pt-16 pb-2">
+        <div className="flex-1 h-px max-w-[38%] bg-[linear-gradient(90deg,transparent,rgba(220,210,240,0.45),transparent)]" />
+        <div className="mx-4 flex items-center gap-2">
+          <span className="text-[rgba(210,200,235,0.65)] text-xs tracking-[0.4em]">✦</span>
+          <span className="block w-3 h-3 rotate-45 bg-[linear-gradient(135deg,#d8c8f0,#7a5fa0)] shadow-[0_0_14px_rgba(180,150,230,0.6)] border border-[rgba(220,210,240,0.5)]" />
+          <span className="text-[rgba(210,200,235,0.65)] text-xs tracking-[0.4em]">✦</span>
+        </div>
+        <div className="flex-1 h-px max-w-[38%] bg-[linear-gradient(90deg,transparent,rgba(220,210,240,0.45),transparent)]" />
+      </div>
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-64 bg-[radial-gradient(60%_100%_at_50%_0%,rgba(120,90,180,0.18),transparent_70%)]" />
+      <div className="section-padding pt-2 sm:pt-4 lg:pt-6 pb-6 sm:pb-10 relative">
         <div className="glass-card p-6 sm:p-10 lg:p-16">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-8">
             {/* Brand */}
             <div className="md:col-span-4 lg:col-span-4">
               <Link to="/" aria-label={`${brandName} — Home`} className="inline-block">
-                <BrandMark size="md" />
+                <BrandMark size="lg" />
               </Link>
               {f.description && (
                 <p className="mt-5 text-[13px] sm:text-[14px] leading-[1.65] text-foreground/55 max-w-sm">{f.description}</p>
@@ -114,7 +125,7 @@ const Footer = () => {
 
             {/* Stay in touch + newsletter */}
             <div className="md:col-span-3 lg:col-span-4">
-              <h3 className="text-[11px] font-medium tracking-[0.28em] uppercase text-foreground/70 mb-4 sm:mb-5">Stay In Touch</h3>
+              <h3 className="font-display text-[11px] font-semibold tracking-[0.32em] uppercase text-foreground/80 mb-4 sm:mb-5 [text-shadow:0_0_10px_rgba(200,180,235,0.25)]">Stay In Touch</h3>
               <ul className="space-y-2 text-[13px] sm:text-[14px] text-foreground/55">
                 {f.email && (
                   <li><a href={`mailto:${f.email}`} className="hover:text-foreground transition-colors duration-300">{f.email}</a></li>
@@ -150,7 +161,12 @@ const Footer = () => {
             </div>
           </div>
 
-          <div className="mt-10 sm:mt-14 premium-divider" />
+          {/* Chain divider before copyright */}
+          <div aria-hidden className="mt-10 sm:mt-14 flex items-center justify-center gap-3">
+            <div className="flex-1 h-px bg-[linear-gradient(90deg,transparent,rgba(220,210,240,0.35),transparent)]" />
+            <span className="text-[rgba(210,200,235,0.55)] text-[10px] tracking-[0.4em]">✦ ☾ ✦</span>
+            <div className="flex-1 h-px bg-[linear-gradient(90deg,transparent,rgba(220,210,240,0.35),transparent)]" />
+          </div>
           <div className="mt-5 sm:mt-6 flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3 text-center sm:text-left">
             <p className="text-[11px] sm:text-[12px] text-foreground/45 tracking-[-0.005em]">
               {copyright}
