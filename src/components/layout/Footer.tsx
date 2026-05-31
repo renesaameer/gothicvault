@@ -4,6 +4,7 @@ import { useLayoutData } from "./LayoutDataProvider";
 import { useToast } from "@/hooks/use-toast";
 import BrandMark from "@/components/brand/BrandMark";
 import { subscribeToNewsletter } from "@/lib/newsletter";
+import { ScrollScene } from "@/components/ui/scroll-scene";
 
 const isExternal = (url: string) => /^https?:\/\//i.test(url);
 
