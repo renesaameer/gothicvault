@@ -24,6 +24,7 @@ const META: Record<string, { label: string; description: string; icon: typeof Im
   categories_showcase: { label: "Categories showcase", description: "Top-level category tiles", icon: FolderOpen },
   brands_showcase: { label: "Brands showcase", description: "Brand logo carousel", icon: Bookmark },
   brand_story: { label: "Brand story", description: "Narrative block with image", icon: BookOpen },
+  featured_image: { label: "Featured image", description: "Full-width promotional banner", icon: ImageIcon },
   newsletter: { label: "Newsletter", description: "Email capture section", icon: Mail },
   why_choose_us: { label: "Why choose us", description: "Value proposition cards", icon: Award },
   testimonials: { label: "Testimonials", description: "Customer reviews carousel", icon: MessageSquare },
@@ -284,6 +285,28 @@ const HomepageManager = ({ hideTitle: _hideTitle }: { hideTitle?: boolean }) => 
                           <Field label="Button text"><Input value={section.content.button_text ?? ""} onChange={(e) => updateContent(section, "button_text", e.target.value)} /></Field>
                           <Field label="Button link"><Input value={section.content.button_link ?? ""} onChange={(e) => updateContent(section, "button_link", e.target.value)} /></Field>
                         </div>
+                      </>
+                    )}
+
+                    {section.id === "featured_image" && (
+                      <>
+                        <Field label="Title (optional)"><Input value={section.content.section_title ?? ""} onChange={(e) => updateContent(section, "section_title", e.target.value)} placeholder="New Arrivals" /></Field>
+                        <Field label="Subtitle (optional)"><Input value={section.content.subtitle ?? ""} onChange={(e) => updateContent(section, "subtitle", e.target.value)} placeholder="Crafted for modern carry" /></Field>
+                        <ImageUpload
+                          value={section.content.image ? [section.content.image] : []}
+                          onChange={(urls) => saveContentKey(section, "image", urls[0] || "")}
+                          multiple={false}
+                          label="Banner image"
+                          hint="Recommended: 1920 × 720 px · JPG or PNG"
+                        />
+                        <div className="grid grid-cols-2 gap-3">
+                          <Field label="Button text"><Input value={section.content.button_text ?? ""} onChange={(e) => updateContent(section, "button_text", e.target.value)} placeholder="Shop now" /></Field>
+                          <Field label="Button link"><Input value={section.content.button_link ?? ""} onChange={(e) => updateContent(section, "button_link", e.target.value)} placeholder="/shop" /></Field>
+                        </div>
+                        <label className="flex items-center gap-2 text-[12.5px]" style={{ color: "hsl(var(--a-text))" }}>
+                          <Switch checked={section.content.overlay ?? true} onCheckedChange={(v) => updateContent(section, "overlay", v)} />
+                          Dark overlay (for text legibility)
+                        </label>
                       </>
                     )}
 
