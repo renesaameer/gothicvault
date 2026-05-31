@@ -297,6 +297,7 @@ const Checkout = () => {
     }
     setSubmitting(true);
 
+    const orderId = crypto.randomUUID();
     const orderNumber = String(Math.floor(10000000000 + Math.random() * 90000000000));
     const orderItems = [
       ...items.map((i) => ({
@@ -324,7 +325,8 @@ const Checkout = () => {
     const paymentLabel = PAYMENT_METHODS.find((p) => p.id === paymentMethod)?.label ?? "Cash on Delivery";
     const composedNotes = [`Payment: ${paymentLabel}`, form.notes].filter(Boolean).join("\n");
 
-    const { data: insertedOrder, error } = await supabase.from("orders").insert({
+    const { error } = await supabase.from("orders").insert({
+      id: orderId,
       order_number: orderNumber,
       customer_name: form.name,
       customer_email: form.email,
@@ -339,7 +341,7 @@ const Checkout = () => {
       notes: composedNotes || null,
       payment_status: `pending_${paymentMethod}`,
       order_status: "pending",
-    }).select("id").maybeSingle();
+    });
 
     if (error) {
       setSubmitting(false);
@@ -361,10 +363,8 @@ const Checkout = () => {
     // Fire-and-forget all post-order side-effects in parallel (don't block UX).
     (() => {
       // Mark incomplete order as recovered + reset session for the next purchase.
-      if (insertedOrder?.id) {
-        markIncompleteOrderRecovered(sessionIdRef.current, form.phone, insertedOrder.id)
-          .catch((e) => console.warn("recovery mark failed:", e));
-      }
+      markIncompleteOrderRecovered(sessionIdRef.current, form.phone, orderId)
+        .catch((e) => console.warn("recovery mark failed:", e));
       clearCheckoutSession();
 
       const stockByProduct = items.reduce<Record<string, number>>((acc, item) => {
@@ -399,9 +399,9 @@ const Checkout = () => {
         subscribeToNewsletter(form.email).catch((e) => console.warn("newsletter failed:", e));
       }
 
-      if (paymentMethod === "cod" && insertedOrder?.id) {
+      if (paymentMethod === "cod") {
         supabase.functions
-          .invoke("steadfast-proxy", { body: { action: "create_order", orderId: insertedOrder.id } })
+          .invoke("steadfast-proxy", { body: { action: "create_order", orderId } })
           .catch((e) => console.warn("Courier auto-push failed:", e));
       }
     })();
