@@ -83,6 +83,16 @@ async function startServer() {
     // Register error handler
     fastify.setErrorHandler(errorHandler);
 
+    // Register root-level health endpoint for Docker HEALTHCHECK
+    fastify.get('/health', async (_request) => {
+      return { status: 'ok' };
+    });
+
+    // Register root endpoint
+    fastify.get('/', async (_request) => {
+      return { message: 'API running' };
+    });
+
     // Register routes
     await fastify.register(routes);
 
