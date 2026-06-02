@@ -3,7 +3,7 @@ import { trackInitiateCheckout, trackAddPaymentInfo, splitName } from "@/lib/tra
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeftIcon, ShieldCheckIcon, TagIcon, XIcon, GiftIcon, TruckIcon } from "@/components/ui/icons";
 import { useCartStore } from "@/data/cartStore";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/api/client.js";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { CURRENCY_SYMBOL, toBanglaDigits } from "@/lib/currency";
@@ -99,10 +99,13 @@ const Checkout = () => {
   };
 
   useEffect(() => {
-    supabase.from("delivery_zones").select("*").eq("enabled", true).order("sort_order").then(({ data }) => {
-      const zones = data ?? [];
+    apiClient.get('/delivery-zones').then((data) => {
+      const zones = (data as any[]) ?? [];
       setDeliveryZones(zones);
       if (zones.length > 0) setSelectedZoneId(zones[0].id);
+      setZonesLoaded(true);
+    }).catch((error) => {
+      console.error('Error fetching delivery zones:', error);
       setZonesLoaded(true);
     });
     getAllProductOffers().then(setProductOffers);
@@ -128,16 +131,22 @@ const Checkout = () => {
     const ids = productIdKey.split(",").filter(Boolean);
 
     Promise.all([
-      supabase.from("products").select("id, name, price, sale_price").in("id", ids),
-      supabase.from("product_media").select("product_id, image_url, sort_order").in("product_id", ids).is("variant_id", null).order("sort_order"),
-    ]).then(([{ data }, { data: media }]) => {
+      apiClient.get('/products', { query: { ids: ids.join(',') } }),
+      // Fetch product media for each product
+      Promise.all(ids.map(id => apiClient.get(`/products/${id}/media`).catch(() => []))),
+    ]).then(([prodRes, mediaResults]) => {
       const nameMap: Record<string, string> = {};
       const priceMap: Record<string, number> = {};
       const imgMap: Record<string, string> = {};
-      (media ?? []).forEach((m: any) => { if (!imgMap[m.product_id]) imgMap[m.product_id] = m.image_url; });
-      (data ?? []).forEach((p: any) => {
+      mediaResults.forEach((media: any, idx: number) => {
+        const productId = ids[idx];
+        if (media && media.length > 0) {
+          imgMap[productId] = media[0].imageUrl;
+        }
+      });
+      ((prodRes as any).data ?? []).forEach((p: any) => {
         nameMap[p.id] = p.name;
-        priceMap[p.id] = Number(p.sale_price ?? p.price ?? 0);
+        priceMap[p.id] = Number(p.salePrice ?? p.price ?? 0);
       });
       items.forEach((i) => {
         const productId = i.productId ?? i.id;
@@ -149,6 +158,8 @@ const Checkout = () => {
       setProductNames((prev) => ({ ...prev, ...nameMap }));
       setProductPrices((prev) => ({ ...prev, ...priceMap }));
       setProductImages((prev) => ({ ...prev, ...imgMap }));
+    }).catch((error) => {
+      console.error('Error fetching checkout product data:', error);
     });
   }, [productIdKey]);
 
@@ -253,19 +264,25 @@ const Checkout = () => {
   const applyCoupon = async () => {
     if (!couponCode.trim()) return;
     setCouponLoading(true);
-    const { data } = await (supabase.rpc as any)("validate_coupon", {
-      _code: couponCode.trim().toUpperCase(),
-      _cart_total: discountedSubtotal,
-    });
-    const row: any = Array.isArray(data) ? data[0] : data;
-    if (!row || !row.valid) {
-      const message = row?.error === "MIN_ORDER" && row?.min_order_amount != null
-        ? `Minimum order of ${CURRENCY_SYMBOL}${toBanglaDigits(row.min_order_amount)} required for this coupon`
-        : row?.error || "Invalid coupon code";
-      toast({ title: message, variant: "destructive" });
-    } else {
-      setAppliedCoupon({ code: row.code, discount_type: row.discount_type, discount_value: row.discount_value });
-      toast({ title: `Coupon applied! ${row.discount_type === "percentage" ? `${toBanglaDigits(row.discount_value)}% off` : `${CURRENCY_SYMBOL}${toBanglaDigits(row.discount_value)} off`}` });
+    try {
+      // Use API client for coupon validation - backend has coupon endpoints
+      const data = await apiClient.post('/coupons/validate', {
+        code: couponCode.trim().toUpperCase(),
+        cartTotal: discountedSubtotal,
+      });
+      const row = data as any;
+      if (!row || !row.valid) {
+        const message = row?.error === "MIN_ORDER" && row?.minOrderAmount != null
+          ? `Minimum order of ${CURRENCY_SYMBOL}${toBanglaDigits(row.minOrderAmount)} required for this coupon`
+          : row?.error || "Invalid coupon code";
+        toast({ title: message, variant: "destructive" });
+      } else {
+        setAppliedCoupon({ code: row.code, discount_type: row.discountType, discount_value: row.discountValue });
+        toast({ title: `Coupon applied! ${row.discountType === "percentage" ? `${toBanglaDigits(row.discountValue)}% off` : `${CURRENCY_SYMBOL}${toBanglaDigits(row.discountValue)} off`}` });
+      }
+    } catch (error) {
+      console.error('Error validating coupon:', error);
+      toast({ title: "Invalid coupon code", variant: "destructive" });
     }
     setCouponLoading(false);
   };
@@ -325,27 +342,28 @@ const Checkout = () => {
     const paymentLabel = PAYMENT_METHODS.find((p) => p.id === paymentMethod)?.label ?? "Cash on Delivery";
     const composedNotes = [`Payment: ${paymentLabel}`, form.notes].filter(Boolean).join("\n");
 
-    const { error } = await supabase.from("orders").insert({
-      id: orderId,
-      order_number: orderNumber,
-      customer_name: form.name,
-      customer_email: form.email,
-      customer_phone: form.phone,
-      shipping_address: { country: form.country, district: form.district, city: form.city, line1: form.line1, landmark: form.landmark, delivery_zone: matchedZone?.zone_name || "" },
-      items: orderItems as any,
-      subtotal,
-      shipping_cost: shippingCost,
-      discount_amount: totalDiscount,
-      coupon_code: appliedCoupon?.code || null,
-      total,
-      notes: composedNotes || null,
-      payment_status: `pending_${paymentMethod}`,
-      order_status: "pending",
-    });
-
-    if (error) {
+    // Use API client for order creation - backend has order endpoints
+    try {
+      await apiClient.post('/orders', {
+        id: orderId,
+        orderNumber: orderNumber,
+        customerName: form.name,
+        customerEmail: form.email,
+        customerPhone: form.phone,
+        shippingAddress: { country: form.country, district: form.district, city: form.city, line1: form.line1, landmark: form.landmark, deliveryZone: matchedZone?.zone_name || "" },
+        items: orderItems,
+        subtotal,
+        shippingCost: shippingCost,
+        discountAmount: totalDiscount,
+        couponCode: appliedCoupon?.code || null,
+        total,
+        notes: composedNotes || null,
+        paymentStatus: `pending_${paymentMethod}`,
+        orderStatus: "pending",
+      });
+    } catch (error: any) {
       setSubmitting(false);
-      toast({ title: "Order failed", description: error.message, variant: "destructive" });
+      toast({ title: "Order failed", description: error.message || "Failed to create order", variant: "destructive" });
       return;
     }
 
@@ -361,48 +379,16 @@ const Checkout = () => {
     navigate(`/order-confirmation?order=${orderNumber}&total=${total}`);
 
     // Fire-and-forget all post-order side-effects in parallel (don't block UX).
-    (() => {
+    (async () => {
       // Mark incomplete order as recovered + reset session for the next purchase.
       markIncompleteOrderRecovered(sessionIdRef.current, form.phone, orderId)
         .catch((e) => console.warn("recovery mark failed:", e));
       clearCheckoutSession();
 
-      const stockByProduct = items.reduce<Record<string, number>>((acc, item) => {
-        const productId = item.productId ?? item.id;
-        acc[productId] = (acc[productId] ?? 0) + item.quantity;
-        return acc;
-      }, {});
-      appliedProductOffers.forEach((ao) => {
-        ao.freeItems.forEach((f) => {
-          stockByProduct[f.productId] = (stockByProduct[f.productId] ?? 0) + f.quantity;
-        });
-      });
-
-      Object.entries(stockByProduct).forEach(([productId, quantity]) => {
-        supabase.rpc("decrement_product_stock", { _product_id: productId, _quantity: quantity })
-          .then(() => {}, (e) => console.warn("stock decrement failed:", e));
-      });
-
-      if (appliedCoupon) {
-        supabase.rpc("increment_coupon_usage", { _code: appliedCoupon.code })
-          .then(() => {}, (e) => console.warn("coupon usage failed:", e));
-      }
-
-      supabase.rpc("upsert_checkout_customer", {
-        _name: form.name,
-        _email: form.email,
-        _phone: form.phone || "",
-        _order_total: total,
-      }).then(() => {}, (e) => console.warn("customer upsert failed:", e));
+      // RPC calls (stock decrement, coupon usage increment, customer upsert) are now handled in the backend checkout service
 
       if (form.email) {
         subscribeToNewsletter(form.email).catch((e) => console.warn("newsletter failed:", e));
-      }
-
-      if (paymentMethod === "cod") {
-        supabase.functions
-          .invoke("steadfast-proxy", { body: { action: "create_order", orderId } })
-          .catch((e) => console.warn("Courier auto-push failed:", e));
       }
     })();
   };

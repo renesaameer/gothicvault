@@ -3,9 +3,9 @@ import { Link, useLocation } from "react-router-dom";
 import { ShoppingBagIcon, MenuIcon, XIcon } from "@/components/ui/icons";
 import { useCartStore } from "@/data/cartStore";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { getActiveOffers } from "@/lib/offers";
 import BrandMark from "@/components/brand/BrandMark";
+import { useCategories } from "@/lib/api/hooks.js";
+import { apiClient } from "@/lib/api/client.js";
 
 const navLinks = [
   { label: "Home", to: "/" },
@@ -31,19 +31,14 @@ const Header = () => {
   const location = useLocation();
   const queryClient = useQueryClient();
 
-  const { data: menuCategories = [] } = useQuery({
-    queryKey: ["header-categories"],
-    queryFn: async () => {
-      const r = await supabase.from("categories").select("id,name,slug,sort_order").order("sort_order");
-      return (r.data as any[]) ?? [];
-    },
-    staleTime: 60 * 1000,
-    refetchOnMount: "always",
-  });
+  const { data: menuCategories = [] } = useCategories({
+    categoryType: 'product',
+    limit: 10,
+  }) as { data: any[] };
 
   const shopCategories = [
     { label: "All Products", to: "/shop" },
-    ...menuCategories.map((c: any) => ({
+    ...(menuCategories || []).map((c: any) => ({
       label: String(c.name || "").toUpperCase(),
       to: `/shop?category=${encodeURIComponent(c.name)}`,
     })),
@@ -54,18 +49,18 @@ const Header = () => {
       queryClient.prefetchQuery({
         queryKey: ["shop"],
         queryFn: async () => {
-          const [prodRes, catRes, setRes, offers] = await Promise.all([
-            supabase.from("products").select("*").order("created_at", { ascending: false }),
-            supabase.from("categories").select("*").order("sort_order"),
-            supabase.from("shop_settings").select("*").eq("id", "default").single(),
-            getActiveOffers(),
+          const [products, categories, settings, offers] = await Promise.all([
+            apiClient.get('/products', { query: { limit: 20 } }),
+            apiClient.get('/categories', { query: { categoryType: 'product', limit: 20 } }),
+            apiClient.get('/homepage/settings'),
+            apiClient.get('/coupons', { query: { enabled: true } }),
           ]);
 
           return {
-            products: (prodRes.data as any[]) ?? [],
-            categories: (catRes.data as any[]) ?? [],
-            settings: (setRes.data as any) ?? { search_enabled: true, sorting_enabled: true, default_sorting: "newest", card_cta_mode: "view_details" },
-            activeOffers: offers,
+            products: (products as any).data || [],
+            categories: (categories as any).data || [],
+            settings: (settings as any).data || { search_enabled: true, sorting_enabled: true, default_sorting: "newest", card_cta_mode: "view_details" },
+            activeOffers: (offers as any).data || [],
           };
         },
         staleTime: 5 * 60 * 1000,
@@ -78,8 +73,8 @@ const Header = () => {
       queryClient.prefetchQuery({
         queryKey: ["about-sections"],
         queryFn: async () => {
-          const r = await supabase.from("about_sections").select("*").order("sort_order");
-          return r.data ?? [];
+          const r = await apiClient.get('/homepage/settings');
+          return (r as any).data?.content?.aboutSections || [];
         },
         staleTime: 5 * 60 * 1000,
         gcTime: 10 * 60 * 1000,
@@ -91,8 +86,8 @@ const Header = () => {
       queryClient.prefetchQuery({
         queryKey: ["contact-settings"],
         queryFn: async () => {
-          const r = await (supabase.rpc as any)("get_public_contact_settings");
-          return Array.isArray(r.data) ? r.data[0] : r.data;
+          const r = await apiClient.get('/homepage/settings');
+          return (r as any).data?.content?.contactSettings || {};
         },
         staleTime: 5 * 60 * 1000,
         gcTime: 10 * 60 * 1000,
@@ -104,8 +99,8 @@ const Header = () => {
       queryClient.prefetchQuery({
         queryKey: ["policies"],
         queryFn: async () => {
-          const r = await supabase.from("policies").select("*").eq("enabled", true).order("sort_order");
-          return r.data ?? [];
+          const r = await apiClient.get('/homepage/settings');
+          return (r as any).data?.content?.policies || [];
         },
         staleTime: 5 * 60 * 1000,
         gcTime: 10 * 60 * 1000,

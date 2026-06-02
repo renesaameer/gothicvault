@@ -18,6 +18,8 @@ model Profile {
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   userRoles UserRole[]
+  carts     Cart[]
+  orders    Order[]
 
   @@index([userId])
   @@index([email])
@@ -132,6 +134,7 @@ model Product {
   variants          ProductVariant[]
   reviews           Review[]
   videoTestimonials VideoTestimonial[]
+  cartItems         CartItem[]
 
   @@index([slug])
   @@index([sku])
@@ -160,6 +163,7 @@ model ProductVariant {
   updatedAt    DateTime       @updatedAt
   media        ProductMedia[]
   product      Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  cartItems    CartItem[]
 
   @@index([productId])
   @@index([sku])
@@ -256,38 +260,106 @@ model Customer {
   @@index([phone])
 }
 
+model Cart {
+  id         String     @id @default(uuid())
+  profileId  String?
+  cartToken  String     @unique
+  couponCode String?
+  expiresAt  DateTime?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  profile    Profile?   @relation(fields: [profileId], references: [id], onDelete: SetNull)
+  items      CartItem[]
+
+  @@index([profileId])
+  @@index([cartToken])
+  @@index([expiresAt])
+}
+
+model CartItem {
+  id        String          @id @default(uuid())
+  cartId    String
+  productId String
+  variantId String?
+  quantity  Int             @default(1)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  cart      Cart            @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product   Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variant   ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+
+  @@unique([cartId, productId, variantId])
+  @@index([cartId])
+  @@index([productId])
+  @@index([variantId])
+}
+
 model Order {
-  id              String         @id @default(uuid())
-  orderNumber     String         @unique
-  customerId      String?
-  customerName    String
-  customerEmail   String?
-  customerPhone   String
-  customerAddress String
-  customerCity    String?
-  items           Json
-  subtotal        Decimal        @db.Decimal(10, 2)
-  shippingCost    Decimal        @db.Decimal(10, 2)
-  discountAmount  Decimal        @default(0) @db.Decimal(10, 2)
-  total           Decimal        @db.Decimal(10, 2)
-  couponCode      String?
-  paymentMethod   PaymentMethod?
-  paymentStatus   PaymentStatus  @default(pending)
-  orderStatus     OrderStatus    @default(pending)
-  shippingAddress Json
-  deliveryPartner String?
-  trackingNumber  String?
-  notes           String?
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
-  customer        Customer?      @relation(fields: [customerId], references: [id])
+  id                String            @id @default(uuid())
+  orderNumber       String            @unique
+  profileId         String?
+  cartId            String?
+  customerId        String?
+  customerName      String
+  customerEmail     String?
+  customerPhone     String
+  customerAddress   String
+  customerCity      String?
+  items             Json
+  subtotal          Decimal           @db.Decimal(10, 2)
+  shippingCost      Decimal           @db.Decimal(10, 2)
+  discountAmount    Decimal           @default(0) @db.Decimal(10, 2)
+  total             Decimal           @db.Decimal(10, 2)
+  couponCode        String?
+  couponSnapshot    Json?
+  pricingSnapshot   Json?
+  shippingSnapshot  Json?
+  paymentMethod     PaymentMethod?
+  paymentStatus     PaymentStatus     @default(pending)
+  paymentProvider   String?
+  paymentIntentId   String?
+  orderStatus       OrderStatus       @default(pending)
+  fulfillmentStatus FulfillmentStatus @default(unfulfilled)
+  shippingAddress   Json
+  billingAddress    Json?
+  deliveryPartner   String?
+  trackingNumber    String?
+  notes             String?
+  refundStatus      RefundStatus      @default(none)
+  refundSnapshot    Json?
+  cancelledAt       DateTime?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  customer          Customer?         @relation(fields: [customerId], references: [id])
+  profile           Profile?          @relation(fields: [profileId], references: [id], onDelete: SetNull)
+  orderItems        OrderItem[]
 
   @@index([orderNumber])
+  @@index([profileId])
   @@index([customerId])
   @@index([customerPhone])
   @@index([orderStatus])
   @@index([paymentStatus])
+  @@index([fulfillmentStatus])
   @@index([createdAt])
+}
+
+model OrderItem {
+  id              String   @id @default(uuid())
+  orderId         String
+  productId       String?
+  variantId       String?
+  quantity        Int
+  unitPrice       Decimal  @db.Decimal(10, 2)
+  lineTotal       Decimal  @db.Decimal(10, 2)
+  productSnapshot Json
+  pricingSnapshot Json
+  createdAt       DateTime @default(now())
+  order           Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([productId])
+  @@index([variantId])
 }
 
 model Coupon {
@@ -758,6 +830,28 @@ enum PaymentStatus {
   paid
   failed
   refunded
+  pending_cod
+  pending_bkash
+  pending_nagad
+  pending_rocket
+  pending_card
+}
+
+enum FulfillmentStatus {
+  unfulfilled
+  processing
+  packed
+  shipped
+  delivered
+  cancelled
+}
+
+enum RefundStatus {
+  none
+  pending
+  partial
+  completed
+  failed
 }
 
 enum PaymentMethod {

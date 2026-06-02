@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import BrandMark from "@/components/brand/BrandMark";
-import { getAdminRole } from "@/lib/admin-role";
+import { useAuth } from "@/lib/api/auth-context.js";
 
 
 const AdminLogin = () => {
@@ -15,58 +14,36 @@ const AdminLogin = () => {
   const [checking, setChecking] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, isAuthenticated, login } = useAuth();
 
   // Check if already logged in with admin/staff role
   useEffect(() => {
-    let mounted = true;
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!mounted) return;
-      if (session?.user) {
-        try {
-          const role = await getAdminRole(session.user.id);
-          if (mounted && role) {
-            navigate("/admin", { replace: true });
-            return;
-          }
-        } catch {
-          await supabase.auth.signOut();
-        }
-        if (mounted) setChecking(false);
-        return;
+    if (isAuthenticated && user) {
+      // Check if user has admin/staff role
+      if (user.roles.includes('admin') || user.roles.includes('staff')) {
+        navigate("/admin", { replace: true });
       }
-      if (mounted) setChecking(false);
-    });
-    return () => { mounted = false; };
-  }, [navigate]);
+      setChecking(false);
+    } else {
+      setChecking(false);
+    }
+  }, [isAuthenticated, user, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
-
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("No user found");
-
-      const role = await getAdminRole(user.id);
-      if (!role) {
-        await supabase.auth.signOut();
+      await login(email, password);
+      
+      // Check if user has admin/staff role (user will be updated after login)
+      if (user?.roles && !user.roles.includes('admin') && !user.roles.includes('staff')) {
         throw new Error("You don't have admin access.");
       }
 
       toast({ title: "Welcome back!" });
       navigate("/admin");
     } catch (err: any) {
-      if (err?.message?.includes("permission denied for function has_role")) {
-        toast({
-          title: "Sign in failed",
-          description: "Admin role verification is unavailable right now. Please try again.",
-          variant: "destructive",
-        });
-      } else {
-        toast({ title: "Sign in failed", description: err.message, variant: "destructive" });
-      }
+      toast({ title: "Sign in failed", description: err.message, variant: "destructive" });
     } finally {
       setLoading(false);
     }

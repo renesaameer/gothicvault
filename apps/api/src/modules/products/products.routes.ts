@@ -39,6 +39,18 @@ export async function productsRoutes(fastify: FastifyInstance) {
     handler: productsController.getRelatedProducts.bind(productsController),
   });
 
+  // Get product variants (public)
+  fastify.get('/products/:id/variants', {
+    preHandler: [generalRateLimit()],
+    handler: productsController.getProductVariants.bind(productsController),
+  });
+
+  // Get product media (public)
+  fastify.get('/products/:id/media', {
+    preHandler: [generalRateLimit()],
+    handler: productsController.getProductMedia.bind(productsController),
+  });
+
   // Create product (admin/staff only)
   fastify.post('/products', {
     preHandler: [authenticate, requireStaff(), generalRateLimit()],

@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect, useMemo, lazy, Suspense, forwardRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/api/client";
 import ProductCard from "@/components/ProductCard";
 import { getActiveOffers, type ActiveOffer } from "@/lib/offers";
 import { CURRENCY_SYMBOL, toBanglaDigits } from "@/lib/currency";
@@ -53,64 +53,64 @@ FadeSection.displayName = "FadeSection";
 // Critical above-fold queries — block first paint
 async function fetchCriticalHomepageData() {
   const [heroRes, secRes, featRes, catRes, brandRes, shopSetRes, offers, featCatRes] = await Promise.all([
-    supabase.from("hero_slides").select("*").eq("enabled", true).order("sort_order"),
-    supabase.from("homepage_sections").select("*").order("sort_order"),
-    supabase.from("products").select("*").eq("featured", true).order("sort_order", { ascending: true }).limit(8),
-    supabase.from("categories").select("id, name, slug, image_url, parent_id"),
-    supabase.from("brands").select("id, name, slug, logo_url, enabled").eq("enabled", true).order("sort_order"),
-    supabase.from("shop_settings").select("card_cta_mode").eq("id", "default").single(),
+    apiClient.get('/homepage/hero-slides'),
+    apiClient.get('/homepage/sections'),
+    apiClient.get('/products/featured'),
+    apiClient.get('/categories'),
+    apiClient.get('/brands'),
+    apiClient.get('/shop-settings'),
     getActiveOffers(),
-    supabase.from("featured_categories").select("*").eq("enabled", true).order("sort_order"),
+    apiClient.get('/homepage/featured-categories'),
   ]);
-  const featuredRaw = (featRes.data as any[]) ?? [];
+  const featResData = (featRes as any).data ?? featRes;
+  const featuredRaw = (featResData as any[]) ?? [];
   const featured = (await attachImagesToProducts(featuredRaw)) as Product[];
   const featuredVariantRanges = await fetchVariantPriceRanges(featured.map((p) => p.id));
   return {
-    heroSlides: (heroRes.data as any[]) ?? [],
-    sections: (secRes.data as unknown as HomepageSection[]) ?? [],
+    heroSlides: (heroRes as any[]) ?? [],
+    sections: (secRes as unknown as HomepageSection[]) ?? [],
     featured,
     featuredVariantRanges,
-    categories: (catRes.data as CategoryWithImage[]) ?? [],
-    brands: (brandRes.data as Brand[]) ?? [],
-    cardCtaMode: ((shopSetRes.data as any)?.card_cta_mode || "view_details") as "add_to_cart" | "view_details",
+    categories: (catRes as CategoryWithImage[]) ?? [],
+    brands: (brandRes as Brand[]) ?? [],
+    cardCtaMode: ((shopSetRes as any)?.cardCtaMode || "view_details") as "add_to_cart" | "view_details",
     activeOffers: offers,
-    featuredCategories: (featCatRes.data as unknown as FeaturedCategory[]) ?? [],
+    featuredCategories: (featCatRes as unknown as FeaturedCategory[]) ?? [],
   };
 }
 
 // Below-fold queries — fetched in parallel but don't block hero render
 async function fetchDeferredHomepageData() {
   const [bsRes, testRes, faqRes, whyRes, reelsRes] = await Promise.all([
-    supabase.from("products").select("*").eq("best_seller", true).order("sort_order", { ascending: true }).limit(8),
-    supabase.from("testimonials").select("*").order("sort_order"),
-    supabase.from("home_faqs").select("*").order("sort_order"),
-    supabase.from("why_choose_us_cards").select("*").order("sort_order"),
-    supabase.from("video_testimonials").select("*").eq("enabled", true).order("sort_order"),
+    apiClient.get('/products', { query: { bestSeller: true, limit: 8 } }),
+    apiClient.get('/homepage/testimonials'),
+    apiClient.get('/homepage/faqs'),
+    apiClient.get('/homepage/why-choose-us'),
+    apiClient.get('/homepage/video-testimonials'),
   ]);
-  const bestSellersRaw = (bsRes.data as any[]) ?? [];
+  const bsResData = (bsRes as any).data ?? bsRes;
+  const bestSellersRaw = (bsResData as any[]) ?? [];
   const bestSellers = (await attachImagesToProducts(bestSellersRaw)) as Product[];
   const bestSellerVariantRanges = await fetchVariantPriceRanges(bestSellers.map((p) => p.id));
 
   // Attach product info to reels
-  const reelsRaw = (reelsRes.data as any[]) ?? [];
-  const productIds = [...new Set(reelsRaw.map((r) => r.product_id).filter(Boolean))];
+  const reelsRaw = (reelsRes as any[]) ?? [];
+  const productIds = [...new Set(reelsRaw.map((r) => r.productId).filter(Boolean))];
   let productMap: Record<string, any> = {};
   if (productIds.length) {
-    const { data: prods } = await supabase
-      .from("products")
-      .select("id, name, slug, price, sale_price")
-      .in("id", productIds);
-    const withImages = await attachImagesToProducts((prods as any[]) ?? []);
+    const prods = await apiClient.get('/products', { query: { ids: productIds.join(',') } });
+    const prodsData = (prods as any).data ?? prods;
+    const withImages = await attachImagesToProducts((prodsData as any[]) ?? []);
     productMap = Object.fromEntries(withImages.map((p: any) => [p.id, { ...p, image: p.images?.[0] ?? null }]));
   }
-  const reels = reelsRaw.map((r) => ({ ...r, product: r.product_id ? productMap[r.product_id] ?? null : null }));
+  const reels = reelsRaw.map((r) => ({ ...r, product: r.productId ? productMap[r.productId] ?? null : null }));
 
   return {
     bestSellers,
     bestSellerVariantRanges,
-    testimonials: (testRes.data as Testimonial[]) ?? [],
-    faqs: (faqRes.data as HomeFaq[]) ?? [],
-    whyCards: (whyRes.data as WhyChooseUsCard[]) ?? [],
+    testimonials: (testRes as Testimonial[]) ?? [],
+    faqs: (faqRes as HomeFaq[]) ?? [],
+    whyCards: (whyRes as WhyChooseUsCard[]) ?? [],
     reels,
   };
 }
@@ -118,20 +118,31 @@ async function fetchDeferredHomepageData() {
 // Returns { [productId]: { min, max } } using effective price (sale_price if set & lower).
 async function fetchVariantPriceRanges(productIds: string[]): Promise<Record<string, { min: number; max: number }>> {
   if (productIds.length === 0) return {};
-  const { data } = await supabase
-    .from("product_variants")
-    .select("product_id, price, sale_price, active")
-    .in("product_id", productIds)
-    .eq("active", true);
-  const map: Record<string, { min: number; max: number }> = {};
-  ((data as any[]) ?? []).forEach((r) => {
-    const p = Number(r.price ?? 0);
-    const sp = r.sale_price != null ? Number(r.sale_price) : null;
-    const eff = sp != null && sp > 0 && sp < p ? sp : p;
-    const cur = map[r.product_id];
-    if (!cur) map[r.product_id] = { min: eff, max: eff };
-    else { if (eff < cur.min) cur.min = eff; if (eff > cur.max) cur.max = eff; }
+  
+  // Fetch variants for each product using the API client
+  const variantPromises = productIds.map(async (productId) => {
+    try {
+      const variants = await apiClient.get(`/products/${productId}/variants`);
+      return { productId, variants: (variants as any[]) ?? [] };
+    } catch (error) {
+      return { productId, variants: [] };
+    }
   });
+  
+  const results = await Promise.all(variantPromises);
+  const map: Record<string, { min: number; max: number }> = {};
+  
+  results.forEach(({ productId, variants }) => {
+    ((variants as any[]) ?? []).forEach((r: any) => {
+      const p = Number(r.price ?? 0);
+      const sp = r.salePrice != null ? Number(r.salePrice) : null;
+      const eff = sp != null && sp > 0 && sp < p ? sp : p;
+      const cur = map[productId];
+      if (!cur) map[productId] = { min: eff, max: eff };
+      else { if (eff < cur.min) cur.min = eff; if (eff > cur.max) cur.max = eff; }
+    });
+  });
+  
   return map;
 }
 

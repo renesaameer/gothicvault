@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { SearchIcon, PackageIcon, TruckIcon, CheckCircleIcon, ClockIcon } from "@/components/ui/icons";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/api/client.js";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { CURRENCY_SYMBOL, toBanglaDigits } from "@/lib/currency";
@@ -52,10 +52,14 @@ const TrackOrder = () => {
         setError("");
         setOrder(null);
         setOrders([]);
-        const { data } = await supabase.rpc("track_order", { _order_number: prefilledOrder.trim() });
-        const row = Array.isArray(data) ? data[0] : data;
-        if (!row) setError("No order found with this number");
-        else setOrder(row);
+        try {
+          const data = await apiClient.get(`/orders/track/${prefilledOrder.trim()}`);
+          const row = (data as any).order;
+          if (!row) setError("No order found with this number");
+          else setOrder(row);
+        } catch (error) {
+          setError("No order found with this number");
+        }
         setLoading(false);
       })();
     }
@@ -72,16 +76,21 @@ const TrackOrder = () => {
     setOrder(null);
     setOrders([]);
 
-    if (searchType === "phone") {
-      const { data } = await supabase.rpc("track_orders_by_phone", { _phone: searchValue.trim() });
-      if (!data || data.length === 0) setError("No orders found for this phone number");
-      else if (data.length === 1) setOrder(data[0]);
-      else setOrders(data);
-    } else {
-      const { data } = await supabase.rpc("track_order", { _order_number: searchValue.trim() });
-      const row = Array.isArray(data) ? data[0] : data;
-      if (!row) setError("No order found with this number");
-      else setOrder(row);
+    try {
+      if (searchType === "phone") {
+        const data = await apiClient.get(`/orders/track/phone/${searchValue.trim()}`);
+        const orders = (data as any).orders ?? [];
+        if (!orders || orders.length === 0) setError("No orders found for this phone number");
+        else if (orders.length === 1) setOrder(orders[0]);
+        else setOrders(orders);
+      } else {
+        const data = await apiClient.get(`/orders/track/${searchValue.trim()}`);
+        const row = (data as any).order;
+        if (!row) setError("No order found with this number");
+        else setOrder(row);
+      }
+    } catch (error) {
+      setError(searchType === "phone" ? "No orders found for this phone number" : "No order found with this number");
     }
     setLoading(false);
   };

@@ -467,4 +467,50 @@ export class ProductsService {
       throw error;
     }
   }
+
+  async getProductVariants(productId: string) {
+    try {
+      const product = await prisma.product.findUnique({
+        where: { id: productId },
+        select: { id: true },
+      });
+
+      if (!product) {
+        throw new Error('Product not found');
+      }
+
+      const variants = await prisma.productVariant.findMany({
+        where: { productId, active: true },
+        orderBy: { sortOrder: 'asc' },
+      });
+
+      return convertDecimalToNumber(variants);
+    } catch (error) {
+      logger.error({ msg: 'Error getting product variants', error });
+      throw error;
+    }
+  }
+
+  async getProductMedia(productId: string) {
+    try {
+      const product = await prisma.product.findUnique({
+        where: { id: productId },
+        select: { id: true },
+      });
+
+      if (!product) {
+        throw new Error('Product not found');
+      }
+
+      const media = await prisma.productMedia.findMany({
+        where: { productId },
+        orderBy: { sortOrder: 'asc' },
+      });
+
+      return convertDecimalToNumber(media);
+    } catch (error) {
+      logger.error({ msg: 'Error getting product media', error });
+      throw error;
+    }
+  }
 }

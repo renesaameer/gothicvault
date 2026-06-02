@@ -4,7 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { SearchIcon, ChevronDownIcon, TagIcon } from "@/components/ui/icons";
 import { trackSearch } from "@/lib/trackingEvents";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/api/client.js";
 import ProductCard from "@/components/ProductCard";
 import { getActiveOffers, type ActiveOffer } from "@/lib/offers";
 import { CURRENCY_SYMBOL, toBanglaDigits } from "@/lib/currency";
@@ -17,41 +17,52 @@ import { ScrollScene } from "@/components/ui/scroll-scene";
 
 async function fetchShopData() {
   const [prodRes, catRes, setRes, offers] = await Promise.all([
-    supabase.from("products").select("*").order("sort_order", { ascending: true }).order("created_at", { ascending: false }),
-    supabase.from("categories").select("*").order("sort_order"),
-    supabase.from("shop_settings").select("*").eq("id", "default").single(),
+    apiClient.get('/products', { query: { limit: 100 } }),
+    apiClient.get('/categories', { query: { categoryType: 'product', limit: 50 } }),
+    apiClient.get('/shop-settings'),
     getActiveOffers(),
   ]);
-  const productsRaw = (prodRes.data as any[]) ?? [];
+  const productsRaw = (prodRes as any).data ?? [];
   const [products, variantRanges] = await Promise.all([
     attachImagesToProducts(productsRaw),
-    fetchVariantPriceRanges(productsRaw.map((p) => p.id)),
+    fetchVariantPriceRanges(productsRaw.map((p: any) => p.id)),
   ]);
   return {
     products: products as Product[],
     variantRanges,
-    categories: (catRes.data as Category[]) ?? [],
-    settings: (setRes.data as any) ?? { search_enabled: true, sorting_enabled: true, default_sorting: "featured", card_cta_mode: "view_details" },
+    categories: (catRes as any).data ?? [],
+    settings: setRes ?? { searchEnabled: true, sortingEnabled: true, defaultSorting: "featured", cardCtaMode: "view_details" },
     activeOffers: offers,
   };
 }
 
 async function fetchVariantPriceRanges(productIds: string[]): Promise<Record<string, { min: number; max: number }>> {
   if (productIds.length === 0) return {};
-  const { data } = await supabase
-    .from("product_variants")
-    .select("product_id, price, sale_price, active")
-    .in("product_id", productIds)
-    .eq("active", true);
-  const map: Record<string, { min: number; max: number }> = {};
-  ((data as any[]) ?? []).forEach((r) => {
-    const p = Number(r.price ?? 0);
-    const sp = r.sale_price != null ? Number(r.sale_price) : null;
-    const eff = sp != null && sp > 0 && sp < p ? sp : p;
-    const cur = map[r.product_id];
-    if (!cur) map[r.product_id] = { min: eff, max: eff };
-    else { if (eff < cur.min) cur.min = eff; if (eff > cur.max) cur.max = eff; }
+  
+  // Fetch variants for each product using the API client
+  const variantPromises = productIds.map(async (productId) => {
+    try {
+      const variants = await apiClient.get(`/products/${productId}/variants`);
+      return { productId, variants: (variants as any[]) ?? [] };
+    } catch (error) {
+      return { productId, variants: [] };
+    }
   });
+  
+  const results = await Promise.all(variantPromises);
+  const map: Record<string, { min: number; max: number }> = {};
+  
+  results.forEach(({ productId, variants }) => {
+    ((variants as any[]) ?? []).forEach((r: any) => {
+      const p = Number(r.price ?? 0);
+      const sp = r.salePrice != null ? Number(r.salePrice) : null;
+      const eff = sp != null && sp > 0 && sp < p ? sp : p;
+      const cur = map[productId];
+      if (!cur) map[productId] = { min: eff, max: eff };
+      else { if (eff < cur.min) cur.min = eff; if (eff > cur.max) cur.max = eff; }
+    });
+  });
+  
   return map;
 }
 
@@ -73,11 +84,11 @@ const Shop = () => {
 
   const products = data?.products ?? [];
   const categories = data?.categories ?? [];
-  const settings = data?.settings ?? { search_enabled: true, sorting_enabled: true, default_sorting: "featured", card_cta_mode: "view_details" };
+  const settings = (data?.settings as any) ?? { searchEnabled: true, sortingEnabled: true, defaultSorting: "featured", cardCtaMode: "view_details" };
   const activeOffers = data?.activeOffers ?? [];
   const [searchParams] = useSearchParams();
   const [search, setSearch] = useState("");
-  const [sort, setSort] = useState(settings.default_sorting || "featured");
+  const [sort, setSort] = useState(settings.defaultSorting || "featured");
   const [category, setCategory] = useState(() => searchParams.get("category") || "All");
 
   useEffect(() => {
@@ -143,7 +154,7 @@ const Shop = () => {
 
       {/* Filters — responsive mobile layout */}
       <div className="flex flex-col gap-3 mb-8 sm:mb-10 max-w-3xl mx-auto">
-        {settings.search_enabled && (
+        {settings.searchEnabled && (
           <div className="relative">
             <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
@@ -171,7 +182,7 @@ const Shop = () => {
               <ChevronDownIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
             </div>
           )}
-          {settings.sorting_enabled && (
+          {settings.sortingEnabled && (
             <div className="relative flex-1 min-w-0">
               <select
                 value={sort}

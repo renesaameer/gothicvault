@@ -1,4 +1,4 @@
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/api/client.js";
 import type { Product } from "@/types/database";
 import type { VariantRow } from "@/lib/variants";
 import { fetchProductImages, attachImagesToProducts } from "@/lib/productMedia";
@@ -6,59 +6,79 @@ import { fetchProductImages, attachImagesToProducts } from "@/lib/productMedia";
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export async function fetchProductData(slug: string) {
-  let { data: prod } = await supabase.from("products").select("*").eq("slug", slug).maybeSingle();
-  if (!prod) {
-    const res = await supabase.from("products").select("*").eq("id", slug).maybeSingle();
-    prod = res.data;
+  // Try to fetch product by slug first, then by id
+  let prod: any = null;
+  try {
+    const slugRes = await apiClient.get(`/products/slug/${slug}`);
+    prod = slugRes;
+  } catch (error) {
+    // If slug fetch fails, try by id
+    try {
+      const idRes = await apiClient.get(`/products/${slug}`);
+      prod = idRes;
+    } catch (idError) {
+      // If both fail, return null
+      return null;
+    }
   }
 
   if (!prod) return null;
 
   const isRealUUID = UUID_RE.test(prod.id);
 
-  const [tabsRes, faqsRes, offersRes, reviewsRes, catRes, brandRes, relRes, variantsRes, zonesRes, shopRes, whyRes] = await Promise.all([
+  // Fetch category and related products from API
+  const [catRes, relRes] = await Promise.all([
+    prod.categoryId ? apiClient.get(`/categories/${prod.categoryId}`) : Promise.resolve(null),
+    prod.categoryId && isRealUUID ? apiClient.get('/products', { query: { categoryId: prod.categoryId, limit: 4, excludeId: prod.id } }) : Promise.resolve({ data: [] }),
+  ]);
+
+  // Fetch product variants, delivery zones, shop settings, and why choose us cards from API
+  const [variantsRes, zonesRes, shopRes, whyRes] = await Promise.all([
+    isRealUUID ? apiClient.get(`/products/${prod.id}/variants`).catch(() => []) : Promise.resolve([]),
+    apiClient.get('/delivery-zones').catch(() => []),
+    apiClient.get('/shop-settings').catch(() => null),
+    apiClient.get('/homepage/why-choose-us').catch(() => []),
+  ]);
+
+  // Keep product-specific data (tabs, FAQs, offers, reviews) as Supabase for now - backend doesn't have these endpoints yet
+  const { supabase } = await import("@/integrations/supabase/client");
+  const [tabsRes, faqsRes, offersRes, reviewsRes, brandRes] = await Promise.all([
     isRealUUID ? supabase.from("product_tabs").select("*").eq("product_id", prod.id).order("sort_order") : { data: [] },
     isRealUUID ? supabase.from("product_faqs").select("*").eq("product_id", prod.id).order("sort_order") : { data: [] },
     isRealUUID ? supabase.from("product_offers").select("*").eq("product_id", prod.id).eq("enabled", true).order("sort_order") : { data: [] },
     isRealUUID ? supabase.from("reviews").select("*").eq("product_id", prod.id).order("created_at", { ascending: false }) : { data: [] },
-    prod.category_id ? supabase.from("categories").select("name").eq("id", prod.category_id).maybeSingle() : { data: null },
-    prod.brand_id ? supabase.from("brands").select("name").eq("id", prod.brand_id).maybeSingle() : { data: null },
-    prod.category_id && isRealUUID ? supabase.from("products").select("*").eq("category_id", prod.category_id).neq("id", prod.id).limit(4) : { data: [] },
-    isRealUUID ? supabase.from("product_variants").select("*").eq("product_id", prod.id).eq("active", true).order("sort_order") : { data: [] },
-    supabase.from("delivery_zones").select("*").eq("enabled", true).order("sort_order"),
-    supabase.from("shop_settings").select("pdp_show_shipment_details, pdp_show_why_choose_us").eq("id", "default").maybeSingle(),
-    supabase.from("why_choose_us_cards").select("*").order("sort_order"),
+    prod.brandId ? supabase.from("brands").select("name").eq("id", prod.brandId).maybeSingle() : { data: null },
   ]);
 
-  const relatedRaw = (relRes.data as any[]) ?? [];
-  const imageMap = await fetchProductImages([prod.id, ...relatedRaw.map((r) => r.id)]);
-  const productWithImages: Product = { ...(prod as any), images: imageMap[prod.id] ?? [] };
-  const relatedWithImages = relatedRaw.map((r) => ({ ...r, images: imageMap[r.id] ?? [] })) as Product[];
+  const relatedRaw = (relRes as any).data ?? [];
+  const imageMap = await fetchProductImages([prod.id, ...relatedRaw.map((r: any) => r.id)]);
+  const productWithImages: Product = { ...prod, images: imageMap[prod.id] ?? [] };
+  const relatedWithImages = relatedRaw.map((r: any) => ({ ...r, images: imageMap[r.id] ?? [] })) as Product[];
 
   return {
     product: productWithImages,
-    categoryName: (catRes.data as any)?.name ?? "",
+    categoryName: (catRes as any)?.name ?? "",
     brandName: (brandRes.data as any)?.name ?? "",
     tabs: tabsRes.data ?? [],
     faqs: faqsRes.data ?? [],
     productOffers: offersRes.data ?? [],
     reviews: reviewsRes.data ?? [],
     related: relatedWithImages,
-    deliveryZones: (zonesRes.data as any[]) ?? [],
-    showShipmentDetails: ((shopRes.data as any)?.pdp_show_shipment_details !== false),
-    showWhyChooseUs: ((shopRes.data as any)?.pdp_show_why_choose_us !== false),
-    whyCards: (whyRes.data as any[]) ?? [],
+    deliveryZones: (zonesRes as any[]) ?? [],
+    showShipmentDetails: ((shopRes as any)?.pdpShowShipmentDetails !== false),
+    showWhyChooseUs: ((shopRes as any)?.pdpShowWhyChooseUs !== false),
+    whyCards: (whyRes as any[]) ?? [],
 
-    variantRows: ((variantsRes.data ?? []) as any[]).map((r) => ({
+    variantRows: ((variantsRes ?? []) as any[]).map((r) => ({
       id: r.id,
-      product_id: r.product_id,
-      option_values: (r.option_values || {}) as Record<string, string>,
+      product_id: r.productId,
+      option_values: (r.optionValues || {}) as Record<string, string>,
       price: Number(r.price ?? 0),
-      sale_price: r.sale_price != null ? Number(r.sale_price) : null,
+      sale_price: r.salePrice != null ? Number(r.salePrice) : null,
       stock: Number(r.stock ?? 0),
       sku: r.sku ?? "",
       active: r.active !== false,
-      sort_order: Number(r.sort_order ?? 0),
+      sort_order: Number(r.sortOrder ?? 0),
     })) as VariantRow[],
   };
 }

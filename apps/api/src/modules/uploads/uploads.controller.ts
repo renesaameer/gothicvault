@@ -85,15 +85,29 @@ export class UploadsController {
 
   async updateFile(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const data = await (request as any).file();
-      
-      if (!data) {
+      const parts = (request as any).parts();
+      let fileData: Buffer | null = null;
+      let filename = '';
+      let mimetype = '';
+      let oldPath = '';
+
+      for await (const part of parts) {
+        if (part.type === 'file') {
+          fileData = await part.toBuffer();
+          filename = part.filename;
+          mimetype = part.mimetype;
+        } else {
+          if (part.fieldname === 'oldPath') {
+            oldPath = part.value as string;
+          }
+        }
+      }
+
+      if (!fileData || !filename) {
         reply.status(400).send({ error: 'No file uploaded' });
         return;
       }
 
-      const { oldPath } = request.body as { oldPath: string };
-      
       if (!oldPath) {
         reply.status(400).send({ error: 'Old file path is required' });
         return;
@@ -102,12 +116,11 @@ export class UploadsController {
       const directory = (request.query as { directory: string }).directory || 'misc';
       const validatedDirectory = uploadDirectorySchema.parse(directory);
 
-      const fileData = await data.toBuffer();
       const result = await this.uploadsService.updateFile(
         oldPath,
         {
-          filename: data.filename,
-          mimetype: data.mimetype,
+          filename,
+          mimetype,
           data: fileData,
         },
         validatedDirectory
@@ -133,25 +146,40 @@ export class UploadsController {
 
   async createProductMedia(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { productId, mediaType, altText, sortOrder } = request.body as {
-        productId: string;
-        mediaType: 'image' | 'video' | 'view_360';
-        altText?: string;
-        sortOrder?: number;
-      };
+      const { productId } = request.params as { productId: string };
+      const parts = (request as any).parts();
+      let fileData: Buffer | null = null;
+      let filename = '';
+      let mimetype = '';
+      let mediaType: 'image' | 'video' | 'view_360' = 'image';
+      let altText: string | undefined;
+      let sortOrder: number = 0;
 
-      const data = await (request as any).file();
-      
-      if (!data) {
+      for await (const part of parts) {
+        if (part.type === 'file') {
+          fileData = await part.toBuffer();
+          filename = part.filename;
+          mimetype = part.mimetype;
+        } else {
+          if (part.fieldname === 'mediaType') {
+            mediaType = part.value as 'image' | 'video' | 'view_360';
+          } else if (part.fieldname === 'altText') {
+            altText = part.value as string;
+          } else if (part.fieldname === 'sortOrder') {
+            sortOrder = parseInt(part.value as string, 10) || 0;
+          }
+        }
+      }
+
+      if (!fileData || !filename) {
         reply.status(400).send({ error: 'No file uploaded' });
         return;
       }
 
-      const fileData = await data.toBuffer();
       const uploadResult = await this.uploadsService.uploadSingleFile(
         {
-          filename: data.filename,
-          mimetype: data.mimetype,
+          filename,
+          mimetype,
           data: fileData,
         },
         'products'
@@ -162,7 +190,7 @@ export class UploadsController {
         mediaType,
         uploadResult.url,
         altText,
-        sortOrder || 0
+        sortOrder
       );
 
       reply.send(result);

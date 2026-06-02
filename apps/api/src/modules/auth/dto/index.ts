@@ -2,7 +2,6 @@ import { z } from 'zod';
 
 // Register DTO
 export const registerSchema = z.object({
-  userId: z.string().uuid(),
   email: z.string().email(),
   fullName: z.string().min(2),
   password: z.string().min(8).regex(
@@ -23,10 +22,35 @@ export type LoginDto = z.infer<typeof loginSchema>;
 
 // Refresh Token DTO
 export const refreshTokenSchema = z.object({
-  refreshToken: z.string(),
+  refreshToken: z.string().optional(),
 });
 
 export type RefreshTokenDto = z.infer<typeof refreshTokenSchema>;
+
+// Forgot Password DTO
+export const forgotPasswordSchema = z.object({
+  email: z.string().email(),
+});
+
+export type ForgotPasswordDto = z.infer<typeof forgotPasswordSchema>;
+
+// Reset Password DTO
+export const resetPasswordSchema = z.object({
+  token: z.string(),
+  password: z.string().min(8).regex(
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
+    'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'
+  ),
+});
+
+export type ResetPasswordDto = z.infer<typeof resetPasswordSchema>;
+
+// Verify Email DTO
+export const verifyEmailSchema = z.object({
+  token: z.string(),
+});
+
+export type VerifyEmailDto = z.infer<typeof verifyEmailSchema>;
 
 // Auth Response DTO
 export const authResponseSchema = z.object({

@@ -4,8 +4,6 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { trackViewContent, trackAddToCart } from "@/lib/trackingEvents";
 import { MinusIcon, PlusIcon, ShoppingBagIcon, ArrowLeftIcon, CheckIcon, TruckIcon, TagIcon, GiftIcon, PartyPopperIcon, ChevronDownIcon } from "@/components/ui/icons";
-// Gallery thumbnails: simple wrapping row directly inline
-import { supabase } from "@/integrations/supabase/client";
 import { useCartStore } from "@/data/cartStore";
 import { CURRENCY_SYMBOL, toBanglaDigits } from "@/lib/currency";
 import { simulateOffersForProduct, type ProductOffer } from "@/lib/productOffers";

@@ -8,6 +8,7 @@ const env = validateEnv();
 export default fp(async (fastify, _options) => {
   await fastify.register(swagger, {
     openapi: {
+      openapi: '3.0.0',
       info: {
         title: 'Gothic Vault API',
         description: 'Backend API for Gothic Vault E-commerce',
@@ -15,7 +16,7 @@ export default fp(async (fastify, _options) => {
       },
       servers: [
         {
-          url: `http://${env.HOST}:${env.PORT}`,
+          url: `http://localhost:${env.PORT}`,
           description: 'Development server',
         },
       ],
@@ -28,6 +29,10 @@ export default fp(async (fastify, _options) => {
           },
         },
       },
+    },
+    transform: ({ schema, url }) => {
+      // Preserve requestBody for Swagger UI
+      return { schema, url };
     },
   });
 

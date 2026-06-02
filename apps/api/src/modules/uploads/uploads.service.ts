@@ -13,6 +13,7 @@ import {
   UPLOAD_DIRECTORIES,
   MAX_FILE_SIZE,
 } from './utils/file-utils.js';
+import { compressImageForProduct, compressImageForThumbnail } from './utils/image-compression.js';
 import type { UploadResponse, MultipleUploadResponse, UploadDirectory } from './dto/index.js';
 import logger from '../../utils/logger.js';
 
@@ -43,6 +44,31 @@ export class UploadsService {
         throw new Error('File size exceeds maximum limit of 10MB');
       }
 
+      // Compress image if it's an image file
+      let compressedData = file.data;
+      let compressedMimeType = file.mimetype;
+      
+      if (file.mimetype.startsWith('image/')) {
+        try {
+          // Use appropriate compression based on directory
+          if (directory === 'products' || directory === 'categories' || directory === 'brands') {
+            compressedData = await compressImageForProduct(file.data);
+            compressedMimeType = 'image/webp';
+          } else {
+            // Default compression for other directories (homepage, testimonials, misc)
+            compressedData = await compressImageForThumbnail(file.data);
+            compressedMimeType = 'image/webp';
+          }
+          
+          logger.info(`Image compressed: ${file.filename} (${file.data.length} -> ${compressedData.length} bytes)`);
+        } catch (compressionError) {
+          logger.warn({ msg: 'Image compression failed, using original', error: compressionError });
+          // Fall back to original if compression fails
+          compressedData = file.data;
+          compressedMimeType = file.mimetype;
+        }
+      }
+
       // Sanitize filename
       const sanitizedFilename = sanitizeFilename(file.filename);
       const uniqueFilename = generateUniqueFilename(sanitizedFilename);
@@ -54,14 +80,14 @@ export class UploadsService {
       // Save file
       const filePath = path.join(dirPath, uniqueFilename);
       const fullPath = path.join(process.cwd(), filePath);
-      await fs.writeFile(fullPath, file.data);
+      await fs.writeFile(fullPath, compressedData);
 
       // Generate response
       const response: UploadResponse = {
         filename: uniqueFilename,
         originalName: file.filename,
-        mimeType: file.mimetype,
-        size: file.data.length,
+        mimeType: compressedMimeType,
+        size: compressedData.length,
         path: filePath,
         url: generateFileUrl(filePath, this.baseUrl),
       };

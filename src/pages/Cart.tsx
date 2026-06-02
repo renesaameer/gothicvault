@@ -3,7 +3,7 @@ import { MinusIcon, PlusIcon, XIcon, ShoppingBagIcon, ArrowLeftIcon, GiftIcon, S
 import { useCartStore } from "@/data/cartStore";
 import { CURRENCY_SYMBOL, toBanglaDigits } from "@/lib/currency";
 import { useEffect, useState, useMemo, useRef } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/api/client.js";
 import { getActiveOffers, type ActiveOffer } from "@/lib/offers";
 import { getAllProductOffers, calculateAppliedOffers, getNearQualifyingOffers, type ProductOffer } from "@/lib/productOffers";
 import { useDocumentMeta } from "@/hooks/useDocumentMeta";
@@ -47,13 +47,19 @@ const Cart = () => {
   });
 
   useEffect(() => {
-    supabase.from("delivery_zones").select("*").eq("enabled", true).order("sort_order").limit(1).then(({ data }) => {
-      const ds = data && data.length > 0 ? Number(data[0].delivery_charge) || 120 : 120;
-      const ft = data && data.length > 0 ? Number(data[0].free_delivery_minimum) || 0 : 0;
+    apiClient.get('/delivery-zones').then((data) => {
+      const zones = (data as any[]) ?? [];
+      const ds = zones.length > 0 ? Number(zones[0].deliveryCharge) || 120 : 120;
+      const ft = zones.length > 0 ? Number(zones[0].freeDeliveryMinimum) || 0 : 0;
       setDefaultShipping(ds);
       setFreeThreshold(ft);
       setShippingLoaded(true);
       try { sessionStorage.setItem(SHIPPING_CACHE_KEY, JSON.stringify({ defaultShipping: ds, freeThreshold: ft })); } catch {}
+    }).catch((error) => {
+      console.error('Error fetching delivery zones:', error);
+      setDefaultShipping(120);
+      setFreeThreshold(0);
+      setShippingLoaded(true);
     });
     getActiveOffers().then(setActiveOffers);
     getAllProductOffers().then(setProductOffers);
@@ -77,16 +83,22 @@ const Cart = () => {
     const ids = productIdKey.split(",").filter(Boolean);
 
     Promise.all([
-      supabase.from("products").select("id, name, price, sale_price").in("id", ids),
-      supabase.from("product_media").select("product_id, image_url, sort_order").in("product_id", ids).is("variant_id", null).order("sort_order"),
-    ]).then(([{ data }, { data: media }]) => {
+      apiClient.get('/products', { query: { ids: ids.join(',') } }),
+      // Fetch product media for each product
+      Promise.all(ids.map(id => apiClient.get(`/products/${id}/media`).catch(() => []))),
+    ]).then(([prodRes, mediaResults]) => {
       const nameMap: Record<string, string> = {};
       const priceMap: Record<string, number> = {};
       const imgMap: Record<string, string> = {};
-      (media ?? []).forEach((m: any) => { if (!imgMap[m.product_id]) imgMap[m.product_id] = m.image_url; });
-      (data ?? []).forEach((p: any) => {
+      mediaResults.forEach((media: any, idx: number) => {
+        const productId = ids[idx];
+        if (media && media.length > 0) {
+          imgMap[productId] = media[0].imageUrl;
+        }
+      });
+      ((prodRes as any).data ?? []).forEach((p: any) => {
         nameMap[p.id] = p.name;
-        priceMap[p.id] = Number(p.sale_price ?? p.price ?? 0);
+        priceMap[p.id] = Number(p.salePrice ?? p.price ?? 0);
       });
       items.forEach((i) => {
         const productId = i.productId ?? i.id;
@@ -98,6 +110,8 @@ const Cart = () => {
       setProductNames((prev) => ({ ...prev, ...nameMap }));
       setProductPrices((prev) => ({ ...prev, ...priceMap }));
       setProductImages((prev) => ({ ...prev, ...imgMap }));
+    }).catch((error) => {
+      console.error('Error fetching cart product data:', error);
     });
   }, [productIdKey]);
 

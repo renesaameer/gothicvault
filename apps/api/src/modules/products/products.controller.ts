@@ -119,4 +119,34 @@ export class ProductsController {
       }
     }
   }
+
+  async getProductVariants(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const { id } = request.params as { id: string };
+      const variants = await this.productsService.getProductVariants(id);
+      reply.send(variants);
+    } catch (error) {
+      logger.error({ msg: 'Error in get product variants controller', error });
+      if (error instanceof Error && error.message === 'Product not found') {
+        reply.status(404).send({ error: 'Product not found' });
+      } else {
+        reply.status(500).send({ error: 'Internal server error' });
+      }
+    }
+  }
+
+  async getProductMedia(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const { id } = request.params as { id: string };
+      const media = await this.productsService.getProductMedia(id);
+      reply.send(media);
+    } catch (error) {
+      logger.error({ msg: 'Error in get product media controller', error });
+      if (error instanceof Error && error.message === 'Product not found') {
+        reply.status(404).send({ error: 'Product not found' });
+      } else {
+        reply.status(500).send({ error: 'Internal server error' });
+      }
+    }
+  }
 }

@@ -15,23 +15,17 @@ export interface TokenPair {
 }
 
 export function generateAccessToken(fastify: FastifyInstance, payload: TokenPayload): string {
-  return fastify.jwt.sign(payload, { expiresIn: env.JWT_EXPIRES_IN });
+  return fastify.jwt.sign(payload, { expiresIn: '15m' });
 }
 
-export function generateRefreshToken(fastify: FastifyInstance, payload: TokenPayload): string {
-  return fastify.jwt.sign(payload, { expiresIn: '30d' });
-}
-
-export function generateTokenPair(fastify: FastifyInstance, payload: TokenPayload): TokenPair {
-  const accessToken = generateAccessToken(fastify, payload);
-  const refreshToken = generateRefreshToken(fastify, payload);
-  return { accessToken, refreshToken };
+export function generateRefreshTokenString(fastify: FastifyInstance, payload: TokenPayload): string {
+  return fastify.jwt.sign(payload, { expiresIn: '7d' });
 }
 
 export function verifyAccessToken(fastify: FastifyInstance, token: string): TokenPayload {
   return fastify.jwt.verify(token) as TokenPayload;
 }
 
-export function verifyRefreshToken(fastify: FastifyInstance, token: string): TokenPayload {
+export function verifyRefreshTokenString(fastify: FastifyInstance, token: string): TokenPayload {
   return fastify.jwt.verify(token) as TokenPayload;
 }

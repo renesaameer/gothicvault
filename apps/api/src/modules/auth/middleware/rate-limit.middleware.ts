@@ -65,3 +65,7 @@ export function loginRateLimit() {
 export function generalRateLimit() {
   return rateLimit(100, 60 * 1000); // 100 requests per minute
 }
+
+export function checkoutRateLimit() {
+  return rateLimit(20, 60 * 1000); // 20 checkout operations per minute
+}
