@@ -8,18 +8,21 @@ datasource db {
 }
 
 model Profile {
-  id        String     @id @default(uuid())
-  userId    String     @unique
-  email     String?
-  password  String?
-  fullName  String?
-  avatarUrl String?
-  isAdmin   Boolean?
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  userRoles UserRole[]
-  carts     Cart[]
-  orders    Order[]
+  id            String        @id @default(uuid())
+  userId        String        @unique
+  email         String?
+  password      String?
+  fullName      String?
+  avatarUrl     String?
+  isAdmin       Boolean?
+  emailVerified Boolean?      @default(false)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  userRoles     UserRole[]
+  carts         Cart[]
+  orders        Order[]
+  refreshTokens RefreshToken[]
+  passwordResets PasswordReset[]
 
   @@index([userId])
   @@index([email])
@@ -37,6 +40,37 @@ model UserRole {
   @@index([role])
 }
 
+model RefreshToken {
+  id          String   @id @default(uuid())
+  token       String   @unique
+  userId      String
+  expiresAt   DateTime
+  revokedAt   DateTime?
+  replacedBy  String?
+  createdAt   DateTime @default(now())
+  profile     Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model PasswordReset {
+  id        String   @id @default(uuid())
+  email     String
+  token     String   @unique
+  userId    String?
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+  profile   Profile? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([email])
+  @@index([token])
+  @@index([expiresAt])
+}
+
 model Category {
   id               String       @id @default(uuid())
   name             String
@@ -50,8 +84,10 @@ model Category {
   featuredImageUrl String?
   metaTitle        String?
   metaDescription  String?
+  description      String?
   enabled          Boolean      @default(true)
   sortOrder        Int          @default(0)
+  featured         Boolean      @default(false)
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
   parent           Category?    @relation("CategoryHierarchy", fields: [parentId], references: [id])
@@ -791,9 +827,9 @@ enum AppRole {
 }
 
 enum CategoryType {
-  category
-  subcategory
-  child
+  product
+  brand
+  collection
 }
 
 enum MediaType {

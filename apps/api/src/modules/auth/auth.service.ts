@@ -164,7 +164,7 @@ export class AuthService {
   async refreshToken(refreshToken: string): Promise<AuthResponse> {
     try {
       // Verify refresh token signature
-      const payload = verifyRefreshTokenString(this.fastify, refreshToken);
+      verifyRefreshTokenString(this.fastify, refreshToken);
 
       // Find refresh token in database
       const storedToken = await prisma.refreshToken.findUnique({
@@ -313,6 +313,7 @@ export class AuthService {
       // Create new reset token
       await prisma.passwordReset.create({
         data: {
+          email: profile.email || '',
           userId: profile.id,
           token,
           expiresAt,
@@ -354,7 +355,7 @@ export class AuthService {
       // Update user password
       await prisma.$transaction([
         prisma.profile.update({
-          where: { id: resetToken.userId },
+          where: { id: resetToken.userId! },
           data: { password: hashedPassword },
         }),
         prisma.passwordReset.update({
@@ -363,12 +364,12 @@ export class AuthService {
         }),
         // Revoke all refresh tokens for security
         prisma.refreshToken.updateMany({
-          where: { userId: resetToken.userId },
+          where: { userId: resetToken.userId! },
           data: { revokedAt: new Date() },
         }),
       ]);
 
-      logger.info(`Password reset for user: ${resetToken.profile.email}`);
+      logger.info(`Password reset for user: ${resetToken.profile?.email}`);
     } catch (error) {
       logger.error({ msg: 'Error in reset password', error });
       throw error;

@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { CategoriesService } from './categories.service.js';
-import { createCategorySchema, updateCategorySchema, categoryQuerySchema, type CreateCategoryDto, type UpdateCategoryDto, type CategoryQueryDto } from './dto/index.js';
+import { createCategorySchema, updateCategorySchema, categoryQuerySchema, type CreateCategoryDto, type UpdateCategoryDto } from './dto/index.js';
 import { ZodError } from 'zod';
 import logger from '../../utils/logger.js';
 

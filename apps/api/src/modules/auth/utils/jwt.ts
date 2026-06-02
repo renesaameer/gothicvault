@@ -1,7 +1,4 @@
 import { FastifyInstance } from 'fastify';
-import { validateEnv } from '../../../utils/env.js';
-
-const env = validateEnv();
 
 export interface TokenPayload {
   userId: string;

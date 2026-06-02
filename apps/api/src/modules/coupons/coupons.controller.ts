@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { CouponsService } from './coupons.service.js';
-import { createCouponSchema, updateCouponSchema, couponQuerySchema, type CreateCouponDto, type UpdateCouponDto, type CouponQueryDto } from './dto/index.js';
+import { createCouponSchema, updateCouponSchema, couponQuerySchema, type CreateCouponDto, type UpdateCouponDto } from './dto/index.js';
 import { ZodError } from 'zod';
 import logger from '../../utils/logger.js';
 

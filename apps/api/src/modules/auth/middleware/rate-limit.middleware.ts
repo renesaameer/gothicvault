@@ -69,3 +69,7 @@ export function generalRateLimit() {
 export function checkoutRateLimit() {
   return rateLimit(20, 60 * 1000); // 20 checkout operations per minute
 }
+
+export function uploadRateLimit() {
+  return rateLimit(10, 60 * 1000); // 10 uploads per minute
+}

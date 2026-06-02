@@ -11,7 +11,7 @@ export class CategoriesService {
       const where: any = {};
       
       if (categoryType) {
-        where.categoryType = categoryType;
+        where.categoryType = categoryType as any;
       }
 
       if (search) {
@@ -125,7 +125,7 @@ export class CategoriesService {
     try {
       const where: any = { parentId: null };
       if (categoryType) {
-        where.categoryType = categoryType;
+        where.categoryType = categoryType as any;
       }
 
       const categories = await prisma.category.findMany({
@@ -150,7 +150,20 @@ export class CategoriesService {
   async createCategory(data: CreateCategoryDto) {
     try {
       const category = await prisma.category.create({
-        data,
+        data: {
+          name: data.name,
+          slug: data.slug,
+          path: data.slug,
+          level: data.parentId ? 1 : 0,
+          description: data.description,
+          categoryType: data.categoryType as any,
+          parentId: data.parentId || null,
+          imageUrl: data.imageUrl,
+          sortOrder: data.sortOrder,
+          metaTitle: data.metaTitle,
+          metaDescription: data.metaDescription,
+          featured: data.featured,
+        },
         include: {
           parent: {
             select: {
@@ -174,7 +187,18 @@ export class CategoriesService {
     try {
       const category = await prisma.category.update({
         where: { id },
-        data,
+        data: {
+          name: data.name,
+          slug: data.slug,
+          description: data.description,
+          categoryType: data.categoryType as any,
+          parentId: data.parentId !== undefined ? (data.parentId || null) : undefined,
+          imageUrl: data.imageUrl,
+          sortOrder: data.sortOrder,
+          metaTitle: data.metaTitle,
+          metaDescription: data.metaDescription,
+          featured: data.featured,
+        },
         include: {
           parent: {
             select: {

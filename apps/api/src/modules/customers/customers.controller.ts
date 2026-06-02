@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { CustomersService } from './customers.service.js';
-import { createCustomerSchema, updateCustomerSchema, customerQuerySchema, type CreateCustomerDto, type UpdateCustomerDto, type CustomerQueryDto } from './dto/index.js';
+import { createCustomerSchema, updateCustomerSchema, customerQuerySchema, type CreateCustomerDto, type UpdateCustomerDto } from './dto/index.js';
 import { ZodError } from 'zod';
 import logger from '../../utils/logger.js';
 
